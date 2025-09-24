@@ -1,0 +1,3 @@
+#define CCB_ARENA_IMPL
+#define CCB_LOGLEVEL 3
+#define CCB_LOGTYPE 2
