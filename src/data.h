@@ -23,7 +23,7 @@ typedef enum {
 
 typedef struct sc_vector_t {
     void* data;
-    uint32_t size;
+    uint64_t size;
     sc_TYPES type;
 } sc_vector;
 

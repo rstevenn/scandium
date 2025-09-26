@@ -1,5 +1,6 @@
 #include "data.h"
 #include "linalg.h"
+#include "sc_engine.h"
 #include "const.h"
 #include "../ccbase/logs/log.h"
 
