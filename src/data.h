@@ -58,7 +58,7 @@ typedef struct {
 typedef struct {
     sc_slice_el_t* slices;
     uint32_t count;
-} sc_slice_t;
+} sc_slice;
 
 
 typedef struct sc_tensor_t {
@@ -71,19 +71,19 @@ typedef struct sc_tensor_t {
 
 // data functions
 sc_dimensions* sc_create_empty_dimensions(uint32_t dims_count, ccb_arena* arena);
-sc_slice_t* sc_create_empty_slice(uint32_t count, ccb_arena* arena);
+sc_slice* sc_create_empty_slice(uint32_t count, ccb_arena* arena);
 sc_index* sc_create_empty_index(uint32_t count, ccb_arena* arena);
 
 sc_vector* sc_create_vector(uint32_t size, sc_TYPES type, ccb_arena* arena);
 sc_dimensions* sc_create_dimensions(uint32_t dims_count, ccb_arena* arena, uint32_t* dims);
 sc_index* sc_create_index(uint32_t count, ccb_arena* arena, uint32_t* indices);
-sc_slice_t* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends);
+sc_slice* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends);
 sc_tensor* sc_create_tensor(sc_dimensions* dims, sc_TYPES type, ccb_arena* arena);
 
 sc_vector* sc_clone_vector(sc_vector* vector, ccb_arena* arena);
 sc_tensor* sc_clone_tensor(sc_tensor* tensor, ccb_arena* arena);
 sc_index* sc_clone_index(sc_index* index, ccb_arena* arena);
-sc_slice_t* sc_clone_slice(sc_slice_t* slice, ccb_arena* arena);
+sc_slice* sc_clone_slice(sc_slice* slice, ccb_arena* arena);
 sc_dimensions* sc_clone_dimensions(sc_dimensions* dimensions, ccb_arena* arena);
 
 
@@ -102,6 +102,7 @@ void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena);
 
 sc_value_t sc_get_vector_element(sc_vector* vector, uint32_t index);
 void sc_set_vector_element(sc_vector* vector, uint32_t index, sc_value_t value);
+sc_vector* sc_get_vector_slice(sc_vector* vector, sc_slice* slice, ccb_arena* arena);
 
 sc_value_t sc_get_tensor_element(sc_tensor* tensor, sc_index* index);
 sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* arena);

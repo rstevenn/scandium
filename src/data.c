@@ -27,8 +27,8 @@ sc_dimensions* sc_create_empty_dimensions(uint32_t dims_count, ccb_arena* arena)
 }
 
 
-sc_slice_t* sc_create_empty_slice(uint32_t count, ccb_arena* arena) {
-    sc_slice_t* slice = (sc_slice_t*)ccb_arena_malloc(arena, sizeof(sc_slice_t));
+sc_slice* sc_create_empty_slice(uint32_t count, ccb_arena* arena) {
+    sc_slice* slice = (sc_slice*)ccb_arena_malloc(arena, sizeof(sc_slice));
     CCB_NOTNULL(slice, "Failed to allocate memory for slice struct");
 
     slice->count = count;
@@ -114,12 +114,12 @@ sc_index* sc_create_index(uint32_t count, ccb_arena* arena, uint32_t* indices) {
     return index;
 }
 
-sc_slice_t* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends) {
+sc_slice* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends) {
     CCB_NOTNULL(arena, "Invalid arena pointer");
     CCB_NOTNULL(starts, "Invalid starts pointer");
     CCB_NOTNULL(ends, "Invalid ends pointer");
 
-    sc_slice_t* slice = (sc_slice_t*)ccb_arena_malloc(arena, sizeof(sc_slice_t));
+    sc_slice* slice = (sc_slice*)ccb_arena_malloc(arena, sizeof(sc_slice));
     CCB_NOTNULL(slice, "Failed to allocate memory for slice struct");
 
     slice->count = count;
@@ -249,8 +249,8 @@ sc_index* sc_clone_index(sc_index* index, ccb_arena* arena) {
     return clone;
 }
 
-sc_slice_t* sc_clone_slice(sc_slice_t* slice, ccb_arena* arena) {
-    sc_slice_t* clone = (sc_slice_t*)ccb_arena_malloc(arena, sizeof(sc_slice_t));
+sc_slice* sc_clone_slice(sc_slice* slice, ccb_arena* arena) {
+    sc_slice* clone = (sc_slice*)ccb_arena_malloc(arena, sizeof(sc_slice));
     CCB_NOTNULL(clone, "Failed to allocate memory for clone struct");
 
     clone->count = slice->count;
@@ -586,6 +586,48 @@ void sc_set_vector_element(sc_vector* vector, uint32_t index, sc_value_t value) 
     }
 }
 
+sc_vector* sc_get_vector_slice(sc_vector* vector, sc_slice* slice, ccb_arena* arena) {
+    if (slice->count != 1) {
+        CCB_ERROR("Slice count %u is not supported for vectors (only 1D slices are supported)", slice->count);
+        return NULL;
+    }
+
+    uint32_t start = slice->slices[0].start;
+    uint32_t end = slice->slices[0].end;
+
+    if (start >= vector->size || end > vector->size || start >= end) {
+        CCB_ERROR("Invalid slice range [%u, %u) for vector of size %u", start, end, vector->size);
+        return NULL;
+    }
+
+    uint32_t new_size = end - start;
+    sc_vector* sub_vector = sc_create_vector(new_size, vector->type, arena);
+    CCB_NOTNULL(sub_vector, "Failed to create sub vector");
+
+    size_t type_size;
+    switch (vector->type) {
+        case sc_float16:
+            type_size = 2;
+            break;
+        case sc_float32:
+            type_size = 4;
+            break;
+        case sc_float64:
+            type_size = 8;
+            break;
+        default:
+            CCB_ERROR("Unsupported sc_TYPES value %d", vector->type);
+            return NULL;
+    }
+
+    memcpy(sub_vector->data, (unsigned char*)vector->data + start * type_size, new_size * type_size);
+
+    return sub_vector;
+}
+
+
+
+// tensor functions
 sc_value_t sc_get_tensor_element(sc_tensor* tensor, sc_index* index) {
     if (index->count != tensor->dims->dims_count) {
         CCB_ERROR("Index count %u does not match tensor dimensions count %u", index->count, tensor->dims->dims_count);
@@ -720,3 +762,4 @@ void sc_set_tensor_element(sc_tensor* tensor, sc_index* index, sc_value_t value)
             break;
     }
 }
+

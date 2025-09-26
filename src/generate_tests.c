@@ -75,7 +75,7 @@ void gen_test_indices_creation(FILE* file, test_data test) {
 
 void gen_test_slice_creation(FILE* file, test_data test) {
     fprintf(file, "int test_slice_creation_(ccb_arena* arena){\n");
-    fprintf(file, "    sc_slice_t* slice = sc_create_slice(2, arena, (uint32_t[]){1, 2}, (uint32_t[]){3, 4});\n");
+    fprintf(file, "    sc_slice* slice = sc_create_slice(2, arena, (uint32_t[]){1, 2}, (uint32_t[]){3, 4});\n");
     fprintf(file, "    if (!slice) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create slice\");\n");
     fprintf(file, "        return -1;\n");
@@ -1101,7 +1101,35 @@ void gen_test_get_sub_tensor(FILE* file, test_data test) {
     fprintf(file, "}\n\n");
 }
 
-
+void gen_test_get_slice_vector(FILE* file, test_data test) {
+    fprintf(file, "int test_get_slice_vector_%s(ccb_arena* arena) {\n   ", test.data_type);
+    fprintf(file, "    sc_vector* vector = sc_create_vector(10, %s, arena);\n", test.sc_type);
+    fprintf(file, "    CCB_NOTNULL(vector, \"Failed to create vector\");\n\n");
+    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
+    fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
+    fprintf(file, "    }\n\n");
+    fprintf(file, "    uint32_t start = 2;\n");
+    fprintf(file, "    uint32_t end = 7;\n");
+    fprintf(file, "    sc_slice* slice = sc_create_slice(1, arena, &start, &end);\n");
+    fprintf(file, "    CCB_NOTNULL(slice, \"Failed to create slice\");\n\n");
+    fprintf(file, "    sc_vector* sub_vector = sc_get_vector_slice(vector, slice, arena);\n");
+    fprintf(file, "    CCB_NOTNULL(sub_vector, \"Failed to create sub-vector\");\n\n");
+    fprintf(file, "    if (sub_vector->size != 5) {\n");
+    fprintf(file, "        CCB_WARNING(\"Sub-vector length mismatch: expected 5, got %%u\", sub_vector->size);\n");
+    fprintf(file, "        return -1;\n");
+    fprintf(file, "    }\n\n");
+    fprintf(file, "    for (uint32_t i = 0; i < 5; i++) {\n");
+    fprintf(file, "        sc_value_t val = sc_get_vector_element(sub_vector, i);\n");
+    fprintf(file, "        sc_value_t expected = to_sc_value((%s)(i + 2), %s);\n", test.data_type, test.sc_type);
+    fprintf(file, "        if (val.type != %s || val.value.%s != expected.value.%s) {\n", test.sc_type, test.union_type, test.union_type);
+    fprintf(file, "            CCB_WARNING(\"Sub-vector element mismatch at index %%u: expected %%f, got %%f\", i, (float)expected.value.%s, (float)val.value.%s);\n", test.union_type, test.union_type);
+    fprintf(file, "            return -1;\n");
+    fprintf(file, "        }\n");
+    fprintf(file, "    }\n\n");
+    fprintf(file, "    return 0;\n");
+    fprintf(file, "}\n\n");
+}
 
 
 
@@ -1167,6 +1195,7 @@ int main(void) {
         gen_test_vector_normalization(file, tests[i]);
         gen_test_vector_normalization_inplace(file, tests[i]);
         gen_test_get_sub_tensor(file, tests[i]);
+        gen_test_get_slice_vector(file, tests[i]);
     }
 
 
@@ -1223,6 +1252,7 @@ int main(void) {
         helper_generate_test_run(file, "vector_normalization", tests[i].data_type);
         helper_generate_test_run(file, "vector_normalization_inplace", tests[i].data_type);
         helper_generate_test_run(file, "get_sub_tensor", tests[i].data_type);
+        helper_generate_test_run(file, "get_slice_vector", tests[i].data_type);
     }
 
 
