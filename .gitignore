@@ -1,5 +1,5 @@
 .vscode/
 .vs/
-.build/
-.log/
-!.gitignore
+build/
+log/
+!.gitignore # To avoid directory being empty
