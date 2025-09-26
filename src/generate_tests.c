@@ -1144,12 +1144,8 @@ int main(void) {
     }
     
     // header
-    fprintf(file, "#include \"const.h\"\n");
-    fprintf(file, "#include \"../ccbase/utils/mem.h\"\n");
-    fprintf(file, "#include \"../ccbase/logs/log.h\" \n");
+    fprintf(file, "#include \"scandium.h\"\n");
     fprintf(file, "#include <string.h>\n");
-    fprintf(file, "#include \"data.h\"\n");
-    fprintf(file, "#include \"linalg.h\"\n");
     fprintf(file, "#include <math.h>\n\n");
 
 
