@@ -1091,7 +1091,6 @@ void gen_test_get_sub_tensor(FILE* file, test_data test) {
     fprintf(file, "    }\n\n");
     fprintf(file, "    for (uint32_t i = 0; i < 4; i++) {\n");
     fprintf(file, "        sc_index* idx = sc_create_index(1, arena, &i);\n");
-    
     fprintf(file, "        sc_value_t val = sc_get_tensor_element(sub_tensor, idx);\n");
     fprintf(file, "        %s expected = (%s)(16 + i);\n", test.data_type, test.data_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected) {\n", test.sc_type, test.union_type);

@@ -33,7 +33,7 @@
 [     INFO      ] ./src/test.c:3589l::main(): [32m[V] test_vector_norm3___bf16 passed[0m
 [     INFO      ] ./src/test.c:3599l::main(): [32m[V] test_vector_normalization___bf16 passed[0m
 [     INFO      ] ./src/test.c:3609l::main(): [32m[V] test_vector_normalization_inplace___bf16 passed[0m
-[     INFO      ] ./src/test.c:1102l::test_get_sub_tensor___bf16(): Sub-tensor allocated: 00000255b2892140
+[     INFO      ] ./src/test.c:1102l::test_get_sub_tensor___bf16(): Sub-tensor allocated: 0000020287efd140
 [    WARNING    ] ./src/test.c:1114l::test_get_sub_tensor___bf16(): Sub-tensor element mismatch at index 0: expected 16.000000, got 20.000000
 [     INFO      ] ./src/test.c:3622l::main(): [31m[X] test_get_sub_tensor___bf16 failed[0m
 [     INFO      ] ./src/test.c:3629l::main(): [32m[V] test_vector_creation_float passed[0m
@@ -68,7 +68,7 @@
 [     INFO      ] ./src/test.c:3919l::main(): [32m[V] test_vector_norm3_float passed[0m
 [     INFO      ] ./src/test.c:3929l::main(): [32m[V] test_vector_normalization_float passed[0m
 [     INFO      ] ./src/test.c:3939l::main(): [32m[V] test_vector_normalization_inplace_float passed[0m
-[     INFO      ] ./src/test.c:2170l::test_get_sub_tensor_float(): Sub-tensor allocated: 00000255b28921c0
+[     INFO      ] ./src/test.c:2170l::test_get_sub_tensor_float(): Sub-tensor allocated: 0000020287efd1c0
 [    WARNING    ] ./src/test.c:2182l::test_get_sub_tensor_float(): Sub-tensor element mismatch at index 0: expected 16.000000, got 20.000000
 [     INFO      ] ./src/test.c:3952l::main(): [31m[X] test_get_sub_tensor_float failed[0m
 [     INFO      ] ./src/test.c:3959l::main(): [32m[V] test_vector_creation_double passed[0m
@@ -103,7 +103,7 @@
 [     INFO      ] ./src/test.c:4249l::main(): [32m[V] test_vector_norm3_double passed[0m
 [     INFO      ] ./src/test.c:4259l::main(): [32m[V] test_vector_normalization_double passed[0m
 [     INFO      ] ./src/test.c:4269l::main(): [32m[V] test_vector_normalization_inplace_double passed[0m
-[     INFO      ] ./src/test.c:3238l::test_get_sub_tensor_double(): Sub-tensor allocated: 00000255b28922c0
+[     INFO      ] ./src/test.c:3238l::test_get_sub_tensor_double(): Sub-tensor allocated: 0000020287efd2c0
 [    WARNING    ] ./src/test.c:3250l::test_get_sub_tensor_double(): Sub-tensor element mismatch at index 0: expected 16.000000, got 20.000000
 [     INFO      ] ./src/test.c:4282l::main(): [31m[X] test_get_sub_tensor_double failed[0m
 [     INFO      ] ./src/test.c:4288l::main(): Tests completed: [32m99 passed[0m, [31m3 failed[0m, 102 total
