@@ -632,7 +632,8 @@ cl_value_t cl_get_tensor_element(cl_tensor* tensor, cl_index* index) {
 
 
 cl_tensor* cl_get_sub_tensor(cl_tensor* tensor, cl_index* index, ccb_arena* arena) {
-    if (index->count > tensor->dims->dims_count) {
+    if (index->count >= tensor->dims->dims_count) {
+
         return NULL;
     }
 
@@ -672,7 +673,7 @@ cl_tensor* cl_get_sub_tensor(cl_tensor* tensor, cl_index* index, ccb_arena* aren
     for (uint32_t i = 0; i < sub_tensor->size; i++) {
         for (uint32_t j = 0; j < sub_tensor->dims->dims_count; j++) {
             target_index->indices[j] = (i / (j == 0 ? 1 : sub_tensor->dims->dims[j - 1])) % sub_tensor->dims->dims[j];
-            source_index->indices[j] += target_index->indices[j];
+            source_index->indices[j+index->count] = target_index->indices[j];
         }
         cl_value_t value = cl_get_tensor_element(tensor, source_index);
         cl_set_tensor_element(sub_tensor, target_index, value);

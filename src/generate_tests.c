@@ -1069,14 +1069,21 @@ void gen_test_get_sub_tensor(FILE* file, test_data test) {
     fprintf(file, "    cl_dimensions* dims = cl_create_dimensions(3, arena, shape);\n");
     fprintf(file, "    cl_tensor* tensor = cl_create_tensor(dims, %s, arena);\n", test.cl_type);
     fprintf(file, "    CCB_NOTNULL(tensor, \"Failed to create tensor\");\n\n");
+    fprintf(file, "    cl_index* zero_idx = cl_create_index(3, arena, (uint32_t[]){0, 0, 0});\n");
+    fprintf(file, "    CCB_NOTNULL(zero_idx, \"Failed to create zero index\");\n\n");
     fprintf(file, "    for (uint32_t i = 0; i < 64; i++) {\n");
-    fprintf(file, "        ((%s*)tensor->data)[i] = (%s)(i);\n", test.data_type, test.data_type);
+    fprintf(file, "        cl_value_t val = to_cl_value((%s)i, %s);\n", test.data_type, test.cl_type);
+    fprintf(file, "        for (uint32_t j = 0; j < 3; j++) {\n");
+    fprintf(file, "            zero_idx->indices[j] = (i / (uint32_t)pow(4, 2 - j)) %% 4;\n");
+    fprintf(file, "        }\n");
+    fprintf(file, "        cl_set_tensor_element(tensor, zero_idx, val);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    uint32_t start[3] = {1, 1, 1};\n");
-    fprintf(file, "    cl_index* indices = cl_create_index(3, arena, start);\n");
+    fprintf(file, "    uint32_t start[3] = {1, 1};\n");
+    fprintf(file, "    cl_index* indices = cl_create_index(2, arena, start);\n");
     fprintf(file, "    CCB_NOTNULL(indices, \"Failed to create indices\");\n\n");
     fprintf(file, "    cl_tensor* sub_tensor = cl_get_sub_tensor(tensor, indices, arena);\n");
     fprintf(file, "    CCB_NOTNULL(sub_tensor, \"Failed to create sub-tensor\");\n\n");
+    fprintf(file, "    CCB_INFO(\"Sub-tensor allocated: %%p\", sub_tensor);\n");
     fprintf(file, "    uint32_t expected_shape[1] = {4};\n");
     fprintf(file, "    if (sub_tensor->dims->dims_count != 1 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {\n");
     fprintf(file, "        CCB_WARNING(\"Sub-tensor shape mismatch: expected [4], got [%%u, %%u, %%u]\", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);\n");
@@ -1084,6 +1091,7 @@ void gen_test_get_sub_tensor(FILE* file, test_data test) {
     fprintf(file, "    }\n\n");
     fprintf(file, "    for (uint32_t i = 0; i < 4; i++) {\n");
     fprintf(file, "        cl_index* idx = cl_create_index(1, arena, &i);\n");
+    
     fprintf(file, "        cl_value_t val = cl_get_tensor_element(sub_tensor, idx);\n");
     fprintf(file, "        %s expected = (%s)(16 + i);\n", test.data_type, test.data_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected) {\n", test.cl_type, test.union_type);
