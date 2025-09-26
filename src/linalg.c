@@ -26,7 +26,7 @@ sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         switch (a->type) {
             case sc_float16: {
                 __bf16* a_data = (__bf16*)a->data;
@@ -72,7 +72,7 @@ sc_vector* sc_for_each_vector_op_inplace(sc_vector* a, sc_vector* b, sc_value_t 
         return NULL;
     }
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         switch (a->type) {
             case sc_float16: {
                 __bf16* a_data = (__bf16*)a->data;
@@ -113,7 +113,7 @@ sc_vector* sc_for_each_vector_scalar_op(sc_vector* a, sc_value_t b, sc_value_t (
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         switch (a->type) {
             case sc_float16: {
                 __bf16* a_data = (__bf16*)a->data;
@@ -148,7 +148,7 @@ sc_vector* sc_for_each_vector_scalar_op_inplace(sc_vector* a, sc_value_t b, sc_v
         return NULL;
     }
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         switch (a->type) {
             case sc_float16: {
                 __bf16* a_data = (__bf16*)a->data;
@@ -182,7 +182,7 @@ sc_value_t sc_vector_reduce(sc_vector* a, sc_value_t (*func)(sc_value_t, sc_valu
 
     sc_value_t result = initial;
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
 
         result = func(result, sc_get_vector_element(a, i));
     }
@@ -194,7 +194,7 @@ sc_vector* sc_vector_map(sc_vector* a, sc_value_t (*func)(sc_value_t), ccb_arena
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         sc_set_vector_element(result, i, func(sc_get_vector_element(a, i)));
     }
 
@@ -203,7 +203,7 @@ sc_vector* sc_vector_map(sc_vector* a, sc_value_t (*func)(sc_value_t), ccb_arena
 
 
 sc_vector* sc_vector_map_inplace(sc_vector* a, sc_value_t (*func)(sc_value_t)){
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         sc_set_vector_element(a, i, func(sc_get_vector_element(a, i)));
     }
 
@@ -214,7 +214,7 @@ sc_vector* sc_vector_map_args(sc_vector* a, sc_value_t (*func)(sc_value_t, void*
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         sc_set_vector_element(result, i, func(sc_get_vector_element(a, i), args));
     }
 
@@ -223,7 +223,7 @@ sc_vector* sc_vector_map_args(sc_vector* a, sc_value_t (*func)(sc_value_t, void*
 
 sc_vector* sc_vector_map_args_inplace(sc_vector* a, sc_value_t (*func)(sc_value_t, void*), void* args) {
     
-    for (uint32_t i = 0; i < a->size; i++) {
+    for (uint64_t i = 0; i < a->size; i++) {
         sc_set_vector_element(a, i, func(sc_get_vector_element(a, i), args));
     }
 
@@ -542,7 +542,7 @@ sc_value_t sc_vector_dot(sc_vector* a, sc_vector* b) {
             out.value.f16 = 0;
             __bf16* a_data = (__bf16*)a->data;
             __bf16* b_data = (__bf16*)b->data;
-            for (uint32_t i = 0; i < a->size; i++) {
+            for (uint64_t i = 0; i < a->size; i++) {
                 out = sc_scalar_add(out, (sc_value_t){.type=sc_float16, .value.f16=a_data[i] * b_data[i]});
             }
             break;
@@ -551,7 +551,7 @@ sc_value_t sc_vector_dot(sc_vector* a, sc_vector* b) {
             out.value.f32 = 0;
             float* a_data = (float*)a->data;
             float* b_data = (float*)b->data;
-            for (uint32_t i = 0; i < a->size; i++) {
+            for (uint64_t i = 0; i < a->size; i++) {
                 out = sc_scalar_add(out, (sc_value_t){.type=sc_float32, .value.f32=a_data[i] * b_data[i]});
             }
             break;
@@ -561,7 +561,7 @@ sc_value_t sc_vector_dot(sc_vector* a, sc_vector* b) {
             out.value.f64 = 0;
             double* a_data = (double*)a->data;
             double* b_data = (double*)b->data;
-            for (uint32_t i = 0; i < a->size; i++) {
+            for (uint64_t i = 0; i < a->size; i++) {
                 out = sc_scalar_add(out, (sc_value_t){.type=sc_float64, .value.f64=a_data[i] * b_data[i]});
             }
             break;
@@ -699,7 +699,7 @@ sc_value_t norm_p_maper(sc_value_t a, void* b) {
 }
 
 
-sc_value_t sc_vector_norm(sc_vector* a, uint32_t p, ccb_arena* tmp_arena) {
+sc_value_t sc_vector_norm(sc_vector* a, uint64_t p, ccb_arena* tmp_arena) {
     if (a->size == 0) {
         CCB_ERROR("Vector size is 0");
         return (sc_value_t){0};

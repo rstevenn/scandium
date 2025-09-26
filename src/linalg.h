@@ -218,10 +218,10 @@ sc_vector* sc_vector_cross_inplace(sc_vector* a, sc_vector* b);
    - sc_vector* a: input vector
    - return: a sc_value_t containing the norm
 */
-sc_value_t sc_vector_norm(sc_vector* a, uint32_t p, ccb_arena* tmp_arena);
+sc_value_t sc_vector_norm(sc_vector* a, uint64_t p, ccb_arena* tmp_arena);
 /* Normalizes a vector to have a length of 1.
    - sc_vector* a: input vector
-   - uint32_t p: power of the norm 
+   - uint64_t p: power of the norm 
    - ccb_arena* tmp_arena: arena where a tmp vector will be allocated
    - return: the norm value od the vector
 */

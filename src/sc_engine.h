@@ -52,17 +52,17 @@ typedef struct {
     
     sc_engine_func task_func;
     
-    uint32_t opration_count;
+    uint64_t opration_count;
 } sc_task;
 
 typedef struct {
-    uint32_t succes;
+    uint64_t succes;
     sc_value_t scalar_result;
     void* result;
 } sc_task_result;
 
 
-sc_task* sc_create_task(sc_engine_data_type data_type, sc_engine_op_type op_type, void* a, void* b, void* out, sc_value_t scalar, void* args, sc_engine_func task_func, uint32_t opration_count, ccb_arena* arena);
+sc_task* sc_create_task(sc_engine_data_type data_type, sc_engine_op_type op_type, void* a, void* b, void* out, sc_value_t scalar, void* args, sc_engine_func task_func, uint64_t opration_count, ccb_arena* arena);
 
 #define sc_create_vector_element_wise_task(a, b, out, func, count, arena) sc_create_task(sc_vector_type, sc_element_wise_op, a, b, out, (sc_value_t){0}, NULL, (sc_engine_func){.scalar_func=func}, count, arena)
 #define sc_create_vector_scalar_task(a, scalar, out, func, count, arena) sc_create_task(sc_vector_type, sc_scalar_op, a, NULL, out, scalar, NULL, (sc_engine_func){.scalar_func=func}, count, arena)

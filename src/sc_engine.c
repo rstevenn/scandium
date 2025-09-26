@@ -10,7 +10,7 @@
 sc_task* sc_create_task(sc_engine_data_type data_type, 
                         sc_engine_op_type op_type, 
                         void* a, void* b, void* out, sc_value_t scalar, void* args, 
-                        sc_engine_func task_func, uint32_t opration_count, ccb_arena* arena){
+                        sc_engine_func task_func, uint64_t opration_count, ccb_arena* arena){
     
     ccb_notnull(arena, "arena is NULL");
     sc_task* task = (sc_task*)ccb_arena_alloc(arena, sizeof(sc_task));

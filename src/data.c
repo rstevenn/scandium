@@ -15,19 +15,19 @@ char** sc_TYPES_NAMES = (char*[]) {
 
 
 // Create data structures
-sc_dimensions* sc_create_empty_dimensions(uint32_t dims_count, ccb_arena* arena) {
+sc_dimensions* sc_create_empty_dimensions(uint64_t dims_count, ccb_arena* arena) {
     sc_dimensions* dimensions = (sc_dimensions*)ccb_arena_malloc(arena, sizeof(sc_dimensions));
     CCB_NOTNULL(dimensions, "Failed to allocate memory for dimensions struct");
 
     dimensions->dims_count = dims_count;
-    dimensions->dims = (uint32_t*)ccb_arena_malloc(arena, dims_count * sizeof(uint32_t));
+    dimensions->dims = (uint64_t*)ccb_arena_malloc(arena, dims_count * sizeof(uint64_t));
     CCB_NOTNULL(dimensions->dims, "Failed to allocate memory for dimensions array");
 
     return dimensions;
 }
 
 
-sc_slice* sc_create_empty_slice(uint32_t count, ccb_arena* arena) {
+sc_slice* sc_create_empty_slice(uint64_t count, ccb_arena* arena) {
     sc_slice* slice = (sc_slice*)ccb_arena_malloc(arena, sizeof(sc_slice));
     CCB_NOTNULL(slice, "Failed to allocate memory for slice struct");
 
@@ -39,12 +39,12 @@ sc_slice* sc_create_empty_slice(uint32_t count, ccb_arena* arena) {
 }
 
 
-sc_index* sc_create_empty_index(uint32_t count, ccb_arena* arena) {
+sc_index* sc_create_empty_index(uint64_t count, ccb_arena* arena) {
     sc_index* index = (sc_index*)ccb_arena_malloc(arena, sizeof(sc_index));
     CCB_NOTNULL(index, "Failed to allocate memory for index struct");
 
     index->count = count;
-    index->indices = (uint32_t*)ccb_arena_malloc(arena, count * sizeof(uint32_t));
+    index->indices = (uint64_t*)ccb_arena_malloc(arena, count * sizeof(uint64_t));
     CCB_NOTNULL(index->indices, "Failed to allocate memory for index array");
 
     return index;
@@ -52,7 +52,7 @@ sc_index* sc_create_empty_index(uint32_t count, ccb_arena* arena) {
 
 
 
-sc_vector* sc_create_vector(uint32_t size, sc_TYPES type, ccb_arena* arena) {
+sc_vector* sc_create_vector(uint64_t size, sc_TYPES type, ccb_arena* arena) {
     sc_vector* vector = (sc_vector*)ccb_arena_malloc(arena, sizeof(sc_vector));
     CCB_NOTNULL(vector, "Failed to allocate memory for vector struct");
 
@@ -83,15 +83,15 @@ sc_vector* sc_create_vector(uint32_t size, sc_TYPES type, ccb_arena* arena) {
 
 
 
-sc_dimensions* sc_create_dimensions(uint32_t dims_count, ccb_arena* arena, uint32_t* dims) {
+sc_dimensions* sc_create_dimensions(uint64_t dims_count, ccb_arena* arena, uint64_t* dims) {
     sc_dimensions* dimensions = (sc_dimensions*)ccb_arena_malloc(arena, sizeof(sc_dimensions));
     CCB_NOTNULL(dimensions, "Failed to allocate memory for dimensions struct");
 
     dimensions->dims_count = dims_count;
-    dimensions->dims = (uint32_t*)ccb_arena_malloc(arena, dims_count * sizeof(uint32_t));
+    dimensions->dims = (uint64_t*)ccb_arena_malloc(arena, dims_count * sizeof(uint64_t));
     CCB_NOTNULL(dimensions->dims, "Failed to allocate memory for dimensions array");
 
-    for (uint32_t i = 0; i < dims_count; i++) {
+    for (uint64_t i = 0; i < dims_count; i++) {
         dimensions->dims[i] = dims[i];
     }
 
@@ -99,22 +99,22 @@ sc_dimensions* sc_create_dimensions(uint32_t dims_count, ccb_arena* arena, uint3
 }
 
 
-sc_index* sc_create_index(uint32_t count, ccb_arena* arena, uint32_t* indices) {
+sc_index* sc_create_index(uint64_t count, ccb_arena* arena, uint64_t* indices) {
     sc_index* index = (sc_index*)ccb_arena_malloc(arena, sizeof(sc_index));
     CCB_NOTNULL(index, "Failed to allocate memory for index struct");
 
     index->count = count;
-    index->indices = (uint32_t*)ccb_arena_malloc(arena, count * sizeof(uint32_t));
+    index->indices = (uint64_t*)ccb_arena_malloc(arena, count * sizeof(uint64_t));
     CCB_NOTNULL(index->indices, "Failed to allocate memory for index array");
 
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint64_t i = 0; i < count; i++) {
         index->indices[i] = indices[i];
     }
 
     return index;
 }
 
-sc_slice* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends) {
+sc_slice* sc_create_slice(uint64_t count, ccb_arena* arena, uint64_t* starts, uint64_t* ends) {
     CCB_NOTNULL(arena, "Invalid arena pointer");
     CCB_NOTNULL(starts, "Invalid starts pointer");
     CCB_NOTNULL(ends, "Invalid ends pointer");
@@ -126,7 +126,7 @@ sc_slice* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, ui
     slice->slices = (sc_slice_el_t*)ccb_arena_malloc(arena, count * sizeof(sc_slice_el_t));
     CCB_NOTNULL(slice->slices, "Failed to allocate memory for slice array");
 
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint64_t i = 0; i < count; i++) {
         slice->slices[i].start = starts[i];
         slice->slices[i].end = ends[i];
     }
@@ -140,7 +140,7 @@ sc_tensor* sc_create_tensor(sc_dimensions* dims, sc_TYPES type, ccb_arena* arena
     CCB_NOTNULL(tensor, "Failed to allocate memory for tensor struct");
 
     tensor->size = 1;
-    for (uint32_t i = 0; i < dims->dims_count; i++) {
+    for (uint64_t i = 0; i < dims->dims_count; i++) {
         tensor->size *= dims->dims[i];
     }
 
@@ -241,10 +241,10 @@ sc_index* sc_clone_index(sc_index* index, ccb_arena* arena) {
 
     clone->count = index->count;
 
-    clone->indices = (uint32_t*)ccb_arena_malloc(arena, index->count * sizeof(uint32_t));
+    clone->indices = (uint64_t*)ccb_arena_malloc(arena, index->count * sizeof(uint64_t));
     CCB_NOTNULL(clone->indices, "Failed to allocate memory for clone indices");
 
-    memcpy(clone->indices, index->indices, index->count * sizeof(uint32_t));
+    memcpy(clone->indices, index->indices, index->count * sizeof(uint64_t));
 
     return clone;
 }
@@ -270,16 +270,16 @@ sc_dimensions* sc_clone_dimensions(sc_dimensions* dimensions, ccb_arena* arena) 
 
     clone->dims_count = dimensions->dims_count;
 
-    clone->dims = (uint32_t*)ccb_arena_malloc(arena, dimensions->dims_count * sizeof(uint32_t));
+    clone->dims = (uint64_t*)ccb_arena_malloc(arena, dimensions->dims_count * sizeof(uint64_t));
     CCB_NOTNULL(clone->dims, "Failed to allocate memory for clone dims");
 
-    memcpy(clone->dims, dimensions->dims, dimensions->dims_count * sizeof(uint32_t));
+    memcpy(clone->dims, dimensions->dims, dimensions->dims_count * sizeof(uint64_t));
 
     return clone;
 }
 
 // Load data
-void sc_data_to_vector(sc_vector* vector, void* data, uint32_t size) {
+void sc_data_to_vector(sc_vector* vector, void* data, uint64_t size) {
     size_t type_size;
     switch (vector->type) {
         case sc_float16:
@@ -310,7 +310,7 @@ void sc_data_to_vector(sc_vector* vector, void* data, uint32_t size) {
 }
 
 
-void sc_data_to_tensor(sc_tensor* tensor, void* data, uint32_t size) {
+void sc_data_to_tensor(sc_tensor* tensor, void* data, uint64_t size) {
     size_t type_size;
     switch (tensor->type) {
         case sc_float16:
@@ -361,7 +361,7 @@ void sc_print_vector(sc_vector* vector) {
     }
 
     printf("Vector (size: %u, type: %s):\n", vector->size, sc_TYPES_NAMES[vector->type]);
-    for (uint32_t i = 0; i < vector->size; i++) {
+    for (uint64_t i = 0; i < vector->size; i++) {
         if (vector->type == sc_float32) {
             float* data = (float*)vector->data;
             printf("  [%u]: %f\n", i, data[i]);
@@ -397,12 +397,12 @@ void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena) {
 
     sc_index index;
     index.count = tensor->dims->dims_count;
-    index.indices = (uint32_t*)ccb_arena_malloc(tmp_arena, tensor->dims->dims_count * sizeof(uint32_t));
+    index.indices = (uint64_t*)ccb_arena_malloc(tmp_arena, tensor->dims->dims_count * sizeof(uint64_t));
     CCB_NOTNULL(index.indices, "Failed to allocate memory for index array");
-    memset(index.indices, 0, tensor->size * sizeof(uint32_t));
+    memset(index.indices, 0, tensor->size * sizeof(uint64_t));
 
     printf("tensor (size: %u, type: %s, dimensions: [", tensor->size, sc_TYPES_NAMES[tensor->type]);
-    for (uint32_t i = 0; i < tensor->dims->dims_count; i++) {
+    for (uint64_t i = 0; i < tensor->dims->dims_count; i++) {
         printf("%u", tensor->dims->dims[i]);
         if (i < tensor->dims->dims_count - 1) {
             printf(", ");
@@ -415,9 +415,9 @@ void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena) {
     }
     printf("]):\n");
 
-    for (uint32_t i = 0; i < tensor->size; i++) {
+    for (uint64_t i = 0; i < tensor->size; i++) {
         printf("  [");
-        for (uint32_t j = 0; j < tensor->dims->dims_count; j++) {
+        for (uint64_t j = 0; j < tensor->dims->dims_count; j++) {
             printf("%u", index.indices[j]);
             if (j < tensor->dims->dims_count - 1) {
                 printf(", ");
@@ -454,7 +454,7 @@ void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena) {
 
 void sc_print_index(sc_index* index) {
     printf("Index (count: %u): [", index->count);
-    for (uint32_t i = 0; i < index->count; i++) {
+    for (uint64_t i = 0; i < index->count; i++) {
         printf("%u", index->indices[i]);
         if (i < index->count - 1) {
             printf(", ");
@@ -465,7 +465,7 @@ void sc_print_index(sc_index* index) {
 
 void sc_print_dimensions(sc_dimensions* dims) {
     printf("Dimensions (count: %u): [", dims->dims_count);
-    for (uint32_t i = 0; i < dims->dims_count; i++) {
+    for (uint64_t i = 0; i < dims->dims_count; i++) {
         printf("%u", dims->dims[i]);
         if (i < dims->dims_count - 1) {
             printf(", ");
@@ -476,7 +476,7 @@ void sc_print_dimensions(sc_dimensions* dims) {
 
 void sc_print_slice(sc_slice* slice) {
     printf("Slice (count: %u): [", slice->count);
-    for (uint32_t i = 0; i < slice->count; i++) {
+    for (uint64_t i = 0; i < slice->count; i++) {
         printf("[%u, %u)", slice->slices[i].start, slice->slices[i].end);
         if (i < slice->count - 1) {
             printf(", ");
@@ -562,7 +562,7 @@ sc_value_t sc_value_as(sc_value_t a, sc_TYPES target_type) {
 
 
 // geters and seters
-sc_value_t sc_get_vector_element(sc_vector* vector, uint32_t index) {
+sc_value_t sc_get_vector_element(sc_vector* vector, uint64_t index) {
     if (index >= vector->size) {
         CCB_ERROR("Index %u out of bounds for vector of size %u", index, vector->size);
         sc_value_t invalid_value;
@@ -592,7 +592,7 @@ sc_value_t sc_get_vector_element(sc_vector* vector, uint32_t index) {
     return value;
 }
 
-void sc_set_vector_element(sc_vector* vector, uint32_t index, sc_value_t value) {
+void sc_set_vector_element(sc_vector* vector, uint64_t index, sc_value_t value) {
     if (index >= vector->size) {
         CCB_ERROR("Index %u out of bounds for vector of size %u", index, vector->size);
         return;
@@ -626,15 +626,15 @@ sc_vector* sc_get_vector_slice(sc_vector* vector, sc_slice* slice, ccb_arena* ar
         return NULL;
     }
 
-    uint32_t start = slice->slices[0].start;
-    uint32_t end = slice->slices[0].end;
+    uint64_t start = slice->slices[0].start;
+    uint64_t end = slice->slices[0].end;
 
     if (start >= vector->size || end > vector->size || start >= end) {
         CCB_ERROR("Invalid slice range [%u, %u) for vector of size %u", start, end, vector->size);
         return NULL;
     }
 
-    uint32_t new_size = end - start;
+    uint64_t new_size = end - start;
     sc_vector* sub_vector = sc_create_vector(new_size, vector->type, arena);
     CCB_NOTNULL(sub_vector, "Failed to create sub vector");
 
@@ -670,8 +670,8 @@ sc_value_t sc_get_tensor_element(sc_tensor* tensor, sc_index* index) {
         return invalid_value;
     }
 
-    uint32_t flat_index = 0;
-    uint32_t stride = 1;
+    uint64_t flat_index = 0;
+    uint64_t stride = 1;
     for (int32_t i = tensor->dims->dims_count - 1; i >= 0; i--) {
         if (index->indices[i] >= tensor->dims->dims[i]) {
             CCB_ERROR("Index %u out of bounds for dimension %u of size %u", index->indices[i], i, tensor->dims->dims[i]);
@@ -713,18 +713,18 @@ sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* aren
         return NULL;
     }
 
-    for (uint32_t i = 0; i < index->count; i++) {
+    for (uint64_t i = 0; i < index->count; i++) {
         if (index->indices[i] >= tensor->dims->dims[i]) {
             CCB_ERROR("Index %u out of bounds for dimension %u of size %u", index->indices[i], i, tensor->dims->dims[i]);
             return NULL;
         }
     }
 
-    uint32_t dims_count = tensor->dims->dims_count - index->count;
-    uint32_t* sub_dims = (uint32_t*)ccb_arena_malloc(arena, dims_count * sizeof(uint32_t));
+    uint64_t dims_count = tensor->dims->dims_count - index->count;
+    uint64_t* sub_dims = (uint64_t*)ccb_arena_malloc(arena, dims_count * sizeof(uint64_t));
     CCB_NOTNULL(sub_dims, "Failed to allocate memory for sub tensor dimensions");
     
-    for (uint32_t i = 0; i < dims_count; i++) {
+    for (uint64_t i = 0; i < dims_count; i++) {
         sub_dims[i] = tensor->dims->dims[i + index->count];
     }
 
@@ -737,7 +737,7 @@ sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* aren
     sc_index* source_index = sc_create_empty_index(tensor->dims->dims_count, arena);
     CCB_NOTNULL(source_index, "Failed to create source index");
 
-    for (uint32_t i = 0; i < index->count; i++) {
+    for (uint64_t i = 0; i < index->count; i++) {
         source_index->indices[i] = index->indices[i];
     }
 
@@ -746,11 +746,11 @@ sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* aren
     CCB_NOTNULL(target_index, "Failed to create target index");
 
 
-    for (uint32_t i = 0; i < sub_tensor->size; i++) {
-        for (uint32_t j = 0; j < sub_tensor->dims->dims_count; j++) {
+    for (uint64_t i = 0; i < sub_tensor->size; i++) {
+        for (uint64_t j = 0; j < sub_tensor->dims->dims_count; j++) {
             
-            uint32_t num = 1;
-            for (uint32_t k = 0; k < j; k++) {
+            uint64_t num = 1;
+            for (uint64_t k = 0; k < j; k++) {
                 num *= sub_tensor->dims->dims[k];
             }
             
@@ -769,8 +769,8 @@ void sc_set_tensor_element(sc_tensor* tensor, sc_index* index, sc_value_t value)
         return;
     }
     
-    uint32_t flat_index = 0;
-    uint32_t stride = 1;
+    uint64_t flat_index = 0;
+    uint64_t stride = 1;
     
     for (int32_t i = tensor->dims->dims_count - 1; i >= 0; i--) {
         if (index->indices[i] >= tensor->dims->dims[i]) {
@@ -810,12 +810,12 @@ sc_tensor* sc_get_tensor_slice(sc_tensor* tensor, sc_slice* slice, ccb_arena* ar
         return NULL;
     }
 
-    uint32_t* new_dims = (uint32_t*)ccb_arena_malloc(arena, tensor->dims->dims_count * sizeof(uint32_t));
+    uint64_t* new_dims = (uint64_t*)ccb_arena_malloc(arena, tensor->dims->dims_count * sizeof(uint64_t));
     CCB_NOTNULL(new_dims, "Failed to allocate memory for new tensor dimensions");
 
-    for (uint32_t i = 0; i < slice->count; i++) {
-        uint32_t start = slice->slices[i].start;
-        uint32_t end = slice->slices[i].end;
+    for (uint64_t i = 0; i < slice->count; i++) {
+        uint64_t start = slice->slices[i].start;
+        uint64_t end = slice->slices[i].end;
 
         if (start >= tensor->dims->dims[i] || end > tensor->dims->dims[i] || start >= end) {
             CCB_ERROR("Invalid slice range [%u, %u) for dimension %u of size %u", start, end, i, tensor->dims->dims[i]);
@@ -837,10 +837,10 @@ sc_tensor* sc_get_tensor_slice(sc_tensor* tensor, sc_slice* slice, ccb_arena* ar
     sc_index* target_index = sc_create_empty_index(sub_tensor->dims->dims_count, arena);
     CCB_NOTNULL(target_index, "Failed to create target index");
 
-    for (uint32_t i = 0; i < sub_tensor->size; i++) {
-        for (uint32_t j = 0; j < sub_tensor->dims->dims_count; j++) {
-            uint32_t num = 1;
-            for (uint32_t k = 0; k < j; k++) {
+    for (uint64_t i = 0; i < sub_tensor->size; i++) {
+        for (uint64_t j = 0; j < sub_tensor->dims->dims_count; j++) {
+            uint64_t num = 1;
+            for (uint64_t k = 0; k < j; k++) {
                 num *= sub_tensor->dims->dims[k];
             }
             target_index->indices[j] = (i / (num)) % sub_tensor->dims->dims[j];

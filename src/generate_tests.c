@@ -41,13 +41,13 @@ void helper_generate_test_run(FILE* file, const char* test_name, const char* dat
 
 void gen_test_dims_creation(FILE* file, test_data test) {
     fprintf(file, "int test_dims_creation_(ccb_arena* arena){\n");
-    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint32_t[]){2, 5});\n");
+    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint64_t[]){2, 5});\n");
     fprintf(file, "    if (!dims) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create dimensions\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 2; i++) {\n");
-    fprintf(file, "        if (dims->dims[i] != (uint32_t[]){2, 5}[i]) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 2; i++) {\n");
+    fprintf(file, "        if (dims->dims[i] != (uint64_t[]){2, 5}[i]) {\n");
     fprintf(file, "            CCB_WARNING(\"Dimensions creation failed\");\n");
     fprintf(file, "            return -1;\n");
     fprintf(file, "        }\n");
@@ -58,13 +58,13 @@ void gen_test_dims_creation(FILE* file, test_data test) {
 
 void gen_test_indices_creation(FILE* file, test_data test) {
     fprintf(file, "int test_indices_creation_(ccb_arena* arena){\n");
-    fprintf(file, "    sc_index* index = sc_create_index(2, arena, (uint32_t[]){1, 2});\n");
+    fprintf(file, "    sc_index* index = sc_create_index(2, arena, (uint64_t[]){1, 2});\n");
     fprintf(file, "    if (!index) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create index\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 2; i++) {\n");
-    fprintf(file, "        if (index->indices[i] != (uint32_t[]){1, 2}[i]) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 2; i++) {\n");
+    fprintf(file, "        if (index->indices[i] != (uint64_t[]){1, 2}[i]) {\n");
     fprintf(file, "            CCB_WARNING(\"Index creation failed\");\n");
     fprintf(file, "            return -1;\n");
     fprintf(file, "        }\n");
@@ -75,13 +75,13 @@ void gen_test_indices_creation(FILE* file, test_data test) {
 
 void gen_test_slice_creation(FILE* file, test_data test) {
     fprintf(file, "int test_slice_creation_(ccb_arena* arena){\n");
-    fprintf(file, "    sc_slice* slice = sc_create_slice(2, arena, (uint32_t[]){1, 2}, (uint32_t[]){3, 4});\n");
+    fprintf(file, "    sc_slice* slice = sc_create_slice(2, arena, (uint64_t[]){1, 2}, (uint64_t[]){3, 4});\n");
     fprintf(file, "    if (!slice) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create slice\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 2; i++) {\n");
-    fprintf(file, "        if (slice->slices[i].start != (uint32_t[]){1, 2}[i] || slice->slices[i].end != (uint32_t[]){3, 4}[i]) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 2; i++) {\n");
+    fprintf(file, "        if (slice->slices[i].start != (uint64_t[]){1, 2}[i] || slice->slices[i].end != (uint64_t[]){3, 4}[i]) {\n");
     fprintf(file, "            CCB_WARNING(\"Slice creation failed\");\n");
     fprintf(file, "            return -1;\n");
     fprintf(file, "        }\n");
@@ -103,7 +103,7 @@ void gen_test_vector_creation(FILE* file, test_data test) {
 
 void gen_test_tensor_creation(FILE* file, test_data test) {
     fprintf(file, "int test_tensor_creation_%s(ccb_arena* arena){\n", test.data_type);
-    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint32_t[]){2, 5});\n");
+    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint64_t[]){2, 5});\n");
     fprintf(file, "    if (!dims) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create dimensions\");\n");
     fprintf(file, "        return -1;\n");
@@ -136,7 +136,7 @@ void gen_test_vector_data_loading(FILE* file, test_data test) {
 
 void gen_test_tensor_data_loading(FILE* file, test_data test) {
     fprintf(file, "int test_tensor_data_loading_%s(ccb_arena* arena){\n", test.data_type);
-    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint32_t[]){2, 5});\n");
+    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint64_t[]){2, 5});\n");
     fprintf(file, "    if (!dims) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create dimensions\");\n");
     fprintf(file, "        return -1;\n");
@@ -163,7 +163,7 @@ void gen_test_vector_clone(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -172,7 +172,7 @@ void gen_test_vector_clone(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to clone vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t original_val = sc_get_vector_element(vector, i);\n");
     fprintf(file, "        sc_value_t clone_val = sc_get_vector_element(clone, i);\n");
     fprintf(file, "        if (original_val.value.%s != clone_val.value.%s) {\n", test.union_type, test.union_type);
@@ -186,7 +186,7 @@ void gen_test_vector_clone(FILE* file, test_data test) {
 
 void gen_test_tensor_clone(FILE* file, test_data test) {
     fprintf(file, "int test_tensor_clone_%s(ccb_arena* arena) {\n", test.data_type);
-    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint32_t[]){3, 4});\n");
+    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint64_t[]){3, 4});\n");
     fprintf(file, "    if (!dims) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create dimensions\");\n");
     fprintf(file, "        return -1;\n");
@@ -196,11 +196,11 @@ void gen_test_tensor_clone(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create tensor\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 3; i++) {\n");
-    fprintf(file, "        for (uint32_t j = 0; j < 4; j++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 3; i++) {\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 4; j++) {\n");
     fprintf(file, "            sc_index index;\n");
     fprintf(file, "            index.count = 2;\n");
-    fprintf(file, "            uint32_t idxs[2] = {i, j};\n");
+    fprintf(file, "            uint64_t idxs[2] = {i, j};\n");
     fprintf(file, "            index.indices = idxs;\n");
     fprintf(file, "            sc_value_t val = to_sc_value((%s)(i * 4 + j), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "            sc_set_tensor_element(tensor, &index, val);\n");
@@ -211,11 +211,11 @@ void gen_test_tensor_clone(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to clone tensor\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 3; i++) {\n");
-    fprintf(file, "        for (uint32_t j = 0; j < 4; j++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 3; i++) {\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 4; j++) {\n");
     fprintf(file, "            sc_index index;\n");
     fprintf(file, "            index.count = 2;\n");
-    fprintf(file, "            uint32_t idxs[2] = {i, j};\n");
+    fprintf(file, "            uint64_t idxs[2] = {i, j};\n");
     fprintf(file, "            index.indices = idxs;\n\n");
     fprintf(file, "            sc_value_t original_val = sc_get_tensor_element(tensor, &index);\n");
     fprintf(file, "            sc_value_t clone_val = sc_get_tensor_element(clone, &index);\n");
@@ -238,11 +238,11 @@ void gen_test_vector_set_get(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)i) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector set/get mismatch at index %%u: expected %%f, got %%f\", i, (%s)i, val.value.%s);\n", test.data_type, test.union_type);
@@ -255,7 +255,7 @@ void gen_test_vector_set_get(FILE* file, test_data test) {
 
 void gen_test_tensor_set_get(FILE* file, test_data test) {
     fprintf(file, "int test_tensor_set_get_%s(ccb_arena* arena) {\n", test.data_type);
-    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint32_t[]){2, 5});\n");
+    fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(2, arena, (uint64_t[]){2, 5});\n");
     fprintf(file, "    if (!dims) {\n");
     fprintf(file, "        CCB_WARNING(\"Failed to create dimensions\");\n");
     fprintf(file, "        return -1;\n");
@@ -265,21 +265,21 @@ void gen_test_tensor_set_get(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create tensor\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 2; i++) {\n");
-    fprintf(file, "        for (uint32_t j = 0; j < 5; j++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 2; i++) {\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 5; j++) {\n");
     fprintf(file, "            sc_index index;\n"); 
     fprintf(file, "            index.count = 2;\n");
-    fprintf(file, "            uint32_t idxs[2] = {i, j};\n");
+    fprintf(file, "            uint64_t idxs[2] = {i, j};\n");
     fprintf(file, "            index.indices = idxs;\n");
     fprintf(file, "            sc_value_t val = to_sc_value((%s)(i * 5 + j) * 3.0%s, %s);\n", test.data_type, (test.data_type[0] == 'f' ? "f" : ""), test.sc_type);
     fprintf(file, "            sc_set_tensor_element(tensor, &index, val);\n");
     fprintf(file, "        }\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 2; i++) {\n");
-    fprintf(file, "        for (uint32_t j = 0; j < 5; j++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 2; i++) {\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 5; j++) {\n");
     fprintf(file, "            sc_index index;\n");
     fprintf(file, "            index.count = 2;\n");
-    fprintf(file, "            uint32_t idxs[2] = {i, j};\n");
+    fprintf(file, "            uint64_t idxs[2] = {i, j};\n");
     fprintf(file, "            index.indices = idxs;\n\n");
     fprintf(file, "            sc_value_t val = sc_get_tensor_element(tensor, &index);\n");
     fprintf(file, "            if (val.type != %s || val.value.%s != ((%s)(i * 5 + j) * 3.0%s)) {\n", test.sc_type, test.union_type, test.data_type, (test.data_type[0] == 'f' ? "f" : ""));
@@ -305,7 +305,7 @@ void gen_test_vector_add(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
@@ -316,7 +316,7 @@ void gen_test_vector_add(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i + i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector addition mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i + i * 2), val.value.%s);\n", test.data_type, test.union_type);
@@ -339,13 +339,13 @@ void gen_test_vector_add_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector2, i, val2);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = sc_get_vector_element(vector1, i);\n");
     fprintf(file, "        sc_value_t val2 = sc_get_vector_element(vector2, i);\n");
     fprintf(file, "        sc_value_t sum;\n");
@@ -362,7 +362,7 @@ void gen_test_vector_add_inplace(FILE* file, test_data test) {
     }
     fprintf(file, "        sc_set_vector_element(vector1, i, sum);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector1, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%    s)(i + i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"In-place vector addition mismatch at index %%u : expected %%f, got %%f\", i, (%s)(i + i * 2), val.value.%s);\n", test.data_type, test.union_type);
@@ -380,7 +380,7 @@ void gen_test_vector_add_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -390,7 +390,7 @@ void gen_test_vector_add_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i + 5)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector-scalar addition mismatch at index %%u   : expected %%f, got %%f\", i, (%s)(i + 5), val.value.%s);\n", test.data_type, test.union_type);
@@ -408,19 +408,19 @@ int gen_test_vector_add_scalar_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t scalar = to_sc_value((%s)5, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector, i);\n");
     fprintf(file, "        sc_value_t sum;\n");
     fprintf(file, "        sum.type = %s;\n", test.sc_type);
     fprintf(file, "        sum.value.%s = val.value.%s + scalar.value.%s;\n", test.union_type, test.union_type, test.union_type);
     fprintf(file, "        sc_set_vector_element(vector, i, sum);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i + 5)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"In-place vector-scalar addition mismatch at index %%u : expected %%f, got %%f\", i, (%s)(i + 5), val.value.%s);\n", test.data_type, test.union_type);
@@ -443,7 +443,7 @@ void gen_test_vector_sub(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)(i * 3), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
@@ -454,7 +454,7 @@ void gen_test_vector_sub(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n"); 
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n"); 
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i * 3 - i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector subtraction mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i * 3 - i * 2), val.value.%s);\n", test.data_type, test.union_type);
@@ -477,7 +477,7 @@ void gen_test_vector_sub_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)(i * 3), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
@@ -488,7 +488,7 @@ void gen_test_vector_sub_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector1, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i * 3 - i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector subtraction mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i * 3 - i * 2), val.value.%s);\n", test.data_type, test.union_type);
@@ -506,7 +506,7 @@ void gen_test_vector_sub_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)(i * 3), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -534,12 +534,12 @@ void gen_test_vector_sub_scalar_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)(i * 3), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t scalar = to_sc_value((%s)2, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector, i);\n");
     fprintf(file, "        val.value.%s -= scalar.value.%s;\n", test.union_type, test.union_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
@@ -568,7 +568,7 @@ void gen_test_vector_mul_ellement_wise(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
@@ -579,7 +579,7 @@ void gen_test_vector_mul_ellement_wise(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vectore\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i * i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector element-wise multiplication mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i * i * 2), val.value.%s);\n", test.data_type, test.union_type);
@@ -602,7 +602,7 @@ void gen_test_vector_mul_ellement_wise_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
@@ -613,7 +613,7 @@ void gen_test_vector_mul_ellement_wise_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vectore\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i * i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector element-wise multiplication mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i * i * 2), val.value.%s);\n", test.data_type, test.union_type);
@@ -631,7 +631,7 @@ void gen_test_vector_mul_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -641,7 +641,7 @@ void gen_test_vector_mul_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(2 * i)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector-scalar multiplication mismatch at index %%u: expected %%f, got %%f\", i, (%s)(2 * i), val.value.%s);\n", test.data_type, test.union_type);
@@ -659,7 +659,7 @@ void gen_test_vector_mul_scalar_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -669,7 +669,7 @@ void gen_test_vector_mul_scalar_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(2 * i)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector-scalar multiplication mismatch at index %%u: expected %%f, got %%f\", i, (%s)(2 * i), val.value.%s);\n", test.data_type, test.union_type);
@@ -692,7 +692,7 @@ void gen_test_vector_div_element_wise(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i+1), %s);\n", test.data_type, test.sc_type);
@@ -703,7 +703,7 @@ void gen_test_vector_div_element_wise(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vectore\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        %s expected = (%s)i / (%s)(i +1);\n", test.data_type, test.data_type, test.data_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected) {\n", test.sc_type, test.union_type, test.data_type  );
@@ -727,7 +727,7 @@ void gen_test_vector_div_element_wise_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector2\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i+1), %s);\n", test.data_type, test.sc_type);
@@ -738,7 +738,7 @@ void gen_test_vector_div_element_wise_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vectore\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        %s expected = (%s)i / (%s)(i +1);\n", test.data_type, test.data_type, test.data_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected) {\n", test.sc_type, test.union_type, test.data_type  );
@@ -757,7 +757,7 @@ void gen_test_vector_div_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector1\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -767,7 +767,7 @@ void gen_test_vector_div_scalar(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        %s expected = (%s)i / (%s)2;\n", test.data_type, test.data_type, test.data_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected) {\n", test.sc_type, test.union_type, test.data_type  );
@@ -786,7 +786,7 @@ void gen_test_vector_div_scalar_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector1\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -796,7 +796,7 @@ void gen_test_vector_div_scalar_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        %s expected = (%s)i / (%s)2;\n", test.data_type, test.data_type, test.data_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected) {\n", test.sc_type, test.union_type, test.data_type  );
@@ -820,7 +820,7 @@ void gen_test_vector_dot_product(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector1\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i/2, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
@@ -828,7 +828,7 @@ void gen_test_vector_dot_product(FILE* file, test_data test) {
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t result = sc_vector_dot(vector1, vector2);\n\n");
     fprintf(file, "    %s expected = 0;\n", test.data_type);
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        expected += (%s)i/2 * (%s)(i * 2);\n", test.data_type, test.data_type);
     fprintf(file, "    }\n\n");
     fprintf(file, "    if (result.type != %s || result.value.%s != expected) {\n", test.sc_type, test.union_type);
@@ -851,7 +851,7 @@ void gen_test_vector_cross_product(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector1\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 3; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 3; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i + 1), %s);\n", test.data_type, test.sc_type);
@@ -873,7 +873,7 @@ void gen_test_vector_cross_product(FILE* file, test_data test) {
     fprintf(file, "    c[0] = a[1] * b[2] - a[2] * b[1];\n");
     fprintf(file, "    c[1] = a[2] * b[0] - a[0] * b[2];\n");
     fprintf(file, "    c[2] = a[0] * b[1] - a[1] * b[0];\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 3; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 3; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        sc_value_t expected_val = sc_get_vector_element(expected, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != expected_val.value.%s) {\n", test.sc_type, test.union_type, test.union_type);
@@ -897,7 +897,7 @@ void gen_test_vector_cross_product_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create vector1\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 3; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 3; i++) {\n");
     fprintf(file, "        sc_value_t val1 = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val1);\n");
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i + 1), %s);\n", test.data_type, test.sc_type);
@@ -919,7 +919,7 @@ void gen_test_vector_cross_product_inplace(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 3; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 3; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        sc_value_t expected_val = sc_get_vector_element(expected, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != expected_val.value.%s) {\n", test.sc_type, test.union_type, test.union_type);
@@ -935,7 +935,7 @@ void gen_test_vector_norm1(FILE* file, test_data test) {
     fprintf(file, "int test_vector_norm1_%s(ccb_arena* arena) {\n", test.data_type);
     fprintf(file, "    sc_vector* vector1 = sc_create_vector(10, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(vector1, \"Failed to create vector1\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -945,7 +945,7 @@ void gen_test_vector_norm1(FILE* file, test_data test) {
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t expected = to_sc_value((%s)0, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        expected = sc_scalar_add(expected, sc_scalar_abs(sc_get_vector_element(vector1, i)));\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    if (result.value.%s != expected.value.%s) {\n", test.union_type, test.union_type);
@@ -960,7 +960,7 @@ void gen_test_vector_norm2(FILE* file, test_data test) {
     fprintf(file, "int test_vector_norm2_%s(ccb_arena* arena) {\n", test.data_type);
    fprintf(file, "    sc_vector* vector1 = sc_create_vector(10, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(vector1, \"Failed to create vector1\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -971,7 +971,7 @@ void gen_test_vector_norm2(FILE* file, test_data test) {
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t expected = to_sc_value((%s)0, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "    sc_value_t val_p = to_sc_value((%s)2, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        expected = sc_scalar_add(expected, sc_scalar_pow(sc_get_vector_element(vector1, i), val_p));\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    expected = sc_scalar_root(expected, val_p);\n");
@@ -987,7 +987,7 @@ void gen_test_vector_norm3(FILE* file, test_data test) {
     fprintf(file, "int test_vector_norm3_%s(ccb_arena* arena) {\n", test.data_type);
    fprintf(file, "    sc_vector* vector1 = sc_create_vector(10, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(vector1, \"Failed to create vector1\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -998,7 +998,7 @@ void gen_test_vector_norm3(FILE* file, test_data test) {
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t expected = to_sc_value((%s)0, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "    sc_value_t val_p = to_sc_value((%s)3, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        expected = sc_scalar_add(expected, sc_scalar_pow(sc_get_vector_element(vector1, i), val_p));\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    expected = sc_scalar_root(expected, val_p);\n");
@@ -1014,7 +1014,7 @@ void gen_test_vector_normalization(FILE* file, test_data test) {
     fprintf(file, "int test_vector_normalization_%s(ccb_arena* arena) {\n", test.data_type);
     fprintf(file, "    sc_vector* vector1 = sc_create_vector(10, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(vector1, \"Failed to create vector1\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -1024,7 +1024,7 @@ void gen_test_vector_normalization(FILE* file, test_data test) {
     fprintf(file, "         return -1;\n");
     fprintf(file, "    }\n\n");
     fprintf(file, "    sc_value_t norm = sc_vector_norm(vector1, 2, arena);\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        sc_value_t expected = sc_scalar_div(sc_get_vector_element(vector1, i), norm);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != expected.value.%s) {\n", test.sc_type, test.union_type, test.union_type);
@@ -1040,7 +1040,7 @@ void gen_test_vector_normalization_inplace(FILE* file, test_data test) {
     fprintf(file, "int test_vector_normalization_inplace_%s(ccb_arena* arena) {\n", test.data_type);
     fprintf(file, "    sc_vector* vector1 = sc_create_vector(10, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(vector1, \"Failed to create vector1\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector1, i, val);\n");
     fprintf(file, "    }\n\n");
@@ -1050,7 +1050,7 @@ void gen_test_vector_normalization_inplace(FILE* file, test_data test) {
     fprintf(file, "         CCB_WARNING(\"Failed to create result vector\");\n");
     fprintf(file, "         return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        sc_value_t expected = sc_scalar_div(to_sc_value((%s)i, %s), norm);\n", test.data_type, test.sc_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected.value.%s) {\n", test.sc_type, test.union_type, test.union_type);
@@ -1065,30 +1065,30 @@ void gen_test_vector_normalization_inplace(FILE* file, test_data test) {
 
 void gen_test_get_sub_tensor(FILE* file, test_data test) {
     fprintf(file, "int test_get_sub_tensor_%s(ccb_arena* arena) {\n", test.data_type);
-    fprintf(file, "    uint32_t shape[3] = {4, 4, 4};\n");
+    fprintf(file, "    uint64_t shape[3] = {4, 4, 4};\n");
     fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(3, arena, shape);\n");
     fprintf(file, "    sc_tensor* tensor = sc_create_tensor(dims, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(tensor, \"Failed to create tensor\");\n\n");
-    fprintf(file, "    sc_index* zero_idx = sc_create_index(3, arena, (uint32_t[]){0, 0, 0});\n");
+    fprintf(file, "    sc_index* zero_idx = sc_create_index(3, arena, (uint64_t[]){0, 0, 0});\n");
     fprintf(file, "    CCB_NOTNULL(zero_idx, \"Failed to create zero index\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 64; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 64; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "        for (uint32_t j = 0; j < 3; j++) {\n");
-    fprintf(file, "            zero_idx->indices[j] = (i / (uint32_t)pow(4, 2 - j)) %% 4;\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 3; j++) {\n");
+    fprintf(file, "            zero_idx->indices[j] = (i / (uint64_t)pow(4, 2 - j)) %% 4;\n");
     fprintf(file, "        }\n");
     fprintf(file, "        sc_set_tensor_element(tensor, zero_idx, val);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    uint32_t start[3] = {1, 0};\n");
+    fprintf(file, "    uint64_t start[3] = {1, 0};\n");
     fprintf(file, "    sc_index* indices = sc_create_index(2, arena, start);\n");
     fprintf(file, "    CCB_NOTNULL(indices, \"Failed to create indices\");\n\n");
     fprintf(file, "    sc_tensor* sub_tensor = sc_get_sub_tensor(tensor, indices, arena);\n");
     fprintf(file, "    CCB_NOTNULL(sub_tensor, \"Failed to create sub-tensor\");\n\n");
-    fprintf(file, "    uint32_t expected_shape[1] = {4};\n");
+    fprintf(file, "    uint64_t expected_shape[1] = {4};\n");
     fprintf(file, "    if (sub_tensor->dims->dims_count != 1 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {\n");
     fprintf(file, "        CCB_WARNING(\"Sub-tensor shape mismatch: expected [4], got [%%u, %%u, %%u]\", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 4; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 4; i++) {\n");
     fprintf(file, "        sc_index* idx = sc_create_index(1, arena, &i);\n");
     fprintf(file, "        sc_value_t val = sc_get_tensor_element(sub_tensor, idx);\n");
     fprintf(file, "        %s expected = (%s)(16 + i);\n", test.data_type, test.data_type);
@@ -1105,12 +1105,12 @@ void gen_test_get_slice_vector(FILE* file, test_data test) {
     fprintf(file, "int test_get_slice_vector_%s(ccb_arena* arena) {\n   ", test.data_type);
     fprintf(file, "    sc_vector* vector = sc_create_vector(10, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(vector, \"Failed to create vector\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 10; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector, i, val);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    uint32_t start = 2;\n");
-    fprintf(file, "    uint32_t end = 7;\n");
+    fprintf(file, "    uint64_t start = 2;\n");
+    fprintf(file, "    uint64_t end = 7;\n");
     fprintf(file, "    sc_slice* slice = sc_create_slice(1, arena, &start, &end);\n");
     fprintf(file, "    CCB_NOTNULL(slice, \"Failed to create slice\");\n\n");
     fprintf(file, "    sc_vector* sub_vector = sc_get_vector_slice(vector, slice, arena);\n");
@@ -1119,7 +1119,7 @@ void gen_test_get_slice_vector(FILE* file, test_data test) {
     fprintf(file, "        CCB_WARNING(\"Sub-vector length mismatch: expected 5, got %%u\", sub_vector->size);\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 5; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 5; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(sub_vector, i);\n");
     fprintf(file, "        sc_value_t expected = to_sc_value((%s)(i + 2), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        if (val.type != %s || val.value.%s != expected.value.%s) {\n", test.sc_type, test.union_type, test.union_type);
@@ -1134,34 +1134,34 @@ void gen_test_get_slice_vector(FILE* file, test_data test) {
 
 void gen_test_get_slice_tensor(FILE* file, test_data test) {
     fprintf(file, "int test_get_slice_tensor_%s(ccb_arena* arena) {\n", test.data_type);
-    fprintf(file, "    uint32_t shape[3] = {4, 4, 4};\n");
+    fprintf(file, "    uint64_t shape[3] = {4, 4, 4};\n");
     fprintf(file, "    sc_dimensions* dims = sc_create_dimensions(3, arena, shape);\n");
     fprintf(file, "    sc_tensor* tensor = sc_create_tensor(dims, %s, arena);\n", test.sc_type);
     fprintf(file, "    CCB_NOTNULL(tensor, \"Failed to create tensor\");\n\n");
-    fprintf(file, "    sc_index* zero_idx = sc_create_index(3, arena, (uint32_t[]){0, 0, 0});\n");
+    fprintf(file, "    sc_index* zero_idx = sc_create_index(3, arena, (uint64_t[]){0, 0, 0});\n");
     fprintf(file, "    CCB_NOTNULL(zero_idx, \"Failed to create zero index\");\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 64; i++) {\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 64; i++) {\n");
     fprintf(file, "        sc_value_t val = to_sc_value((%s)i, %s);\n", test.data_type, test.sc_type);
-    fprintf(file, "        for (uint32_t j = 0; j < 3; j++) {\n");
-    fprintf(file, "            zero_idx->indices[j] = (i / (uint32_t)pow(4, 2 - j)) %% 4;\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 3; j++) {\n");
+    fprintf(file, "            zero_idx->indices[j] = (i / (uint64_t)pow(4, 2 - j)) %% 4;\n");
     fprintf(file, "        }\n");
     fprintf(file, "        sc_set_tensor_element(tensor, zero_idx, val);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    uint32_t start[3] = {1, 1, 0};\n");
-    fprintf(file, "    uint32_t end[3] = {3, 3, 4};\n");
+    fprintf(file, "    uint64_t start[3] = {1, 1, 0};\n");
+    fprintf(file, "    uint64_t end[3] = {3, 3, 4};\n");
     fprintf(file, "    sc_slice* slice = sc_create_slice(3, arena, start, end);\n");
     fprintf(file, "    CCB_NOTNULL(slice, \"Failed to create slice\");\n\n");
     fprintf(file, "    sc_tensor* sub_tensor = sc_get_tensor_slice(tensor, slice, arena);\n");
     fprintf(file, "    CCB_NOTNULL(sub_tensor, \"Failed to create sub-tensor\");\n\n");
-    fprintf(file, "    uint32_t expected_shape[3] = {2, 2, 4};\n");
+    fprintf(file, "    uint64_t expected_shape[3] = {2, 2, 4};\n");
     fprintf(file, "    if (sub_tensor->dims->dims_count != 3 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {\n");
     fprintf(file, "        CCB_WARNING(\"Sub-tensor shape mismatch: expected [2, 2, 4], got [%%u, %%u, %%u]\", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);\n");
     fprintf(file, "        return -1;\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint32_t i = 0; i < 2; i++) {\n");
-    fprintf(file, "        for (uint32_t j = 0; j < 2; j++) {\n");
-    fprintf(file, "            for (uint32_t k = 0; k < 4; k++) {\n");
-    fprintf(file, "                uint32_t idx_arr[3] = {i, j, k};\n");
+    fprintf(file, "    for (uint64_t i = 0; i < 2; i++) {\n");
+    fprintf(file, "        for (uint64_t j = 0; j < 2; j++) {\n");
+    fprintf(file, "            for (uint64_t k = 0; k < 4; k++) {\n");
+    fprintf(file, "                uint64_t idx_arr[3] = {i, j, k};\n");
     fprintf(file, "                sc_index* idx = sc_create_index(3, arena, idx_arr);\n");
     fprintf(file, "                sc_value_t val = sc_get_tensor_element(sub_tensor, idx);\n");
     fprintf(file, "                %s expected = (%s)(20 + k + 4*j + 16*i);\n", test.data_type, test.data_type);

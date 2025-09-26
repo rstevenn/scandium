@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     CCB_NOTNULL(arena, "Failed to create arena");
 
     // Example usage of scandium library
-    uint32_t size = 1000000;
+    uint64_t size = 1000000;
     sc_vector* vec1 = sc_create_vector(size, sc_float32, arena);
     sc_vector* vec2 = sc_create_vector(size, sc_float32, arena);
     sc_vector* result = sc_create_vector(size, sc_float32, arena);
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     // Initialize vectors
     float* data1 = (float*)vec1->data;
     float* data2 = (float*)vec2->data;
-    for (uint32_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < size; i++) {
         data1[i] = (float)i;
         data2[i] = (float)(size - i);
     }
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     clock_t start = clock();
     stress_test(vec1, vec2);
     clock_t end = clock();
-    
+
     double time_spent = ((double)end - (double)start)/CLOCKS_PER_SEC / STRESS_TEST_ITERATIONS;
     printf("Stress test took %f seconds per iteration.\n", time_spent);
 

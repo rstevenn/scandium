@@ -40,44 +40,44 @@ typedef struct {
 } sc_value_t;
 
 typedef struct sc_dimensions_t {
-    uint32_t dims_count;
-    uint32_t* dims;
+    uint64_t dims_count;
+    uint64_t* dims;
 } sc_dimensions;
 
 typedef struct  sc_index_t {
-    uint32_t* indices;
-    uint32_t count;
+    uint64_t* indices;
+    uint64_t count;
 } sc_index;
 
 
 typedef struct {
-    uint32_t start;
-    uint32_t end;
+    uint64_t start;
+    uint64_t end;
 } sc_slice_el_t;
 
 typedef struct {
     sc_slice_el_t* slices;
-    uint32_t count;
+    uint64_t count;
 } sc_slice;
 
 
 typedef struct sc_tensor_t {
     void* data;
     sc_dimensions* dims;
-    uint32_t size;
+    uint64_t size;
     sc_TYPES type;
 } sc_tensor;
 
 
 // data functions
-sc_dimensions* sc_create_empty_dimensions(uint32_t dims_count, ccb_arena* arena);
-sc_slice* sc_create_empty_slice(uint32_t count, ccb_arena* arena);
-sc_index* sc_create_empty_index(uint32_t count, ccb_arena* arena);
+sc_dimensions* sc_create_empty_dimensions(uint64_t dims_count, ccb_arena* arena);
+sc_slice* sc_create_empty_slice(uint64_t count, ccb_arena* arena);
+sc_index* sc_create_empty_index(uint64_t count, ccb_arena* arena);
 
-sc_vector* sc_create_vector(uint32_t size, sc_TYPES type, ccb_arena* arena);
-sc_dimensions* sc_create_dimensions(uint32_t dims_count, ccb_arena* arena, uint32_t* dims);
-sc_index* sc_create_index(uint32_t count, ccb_arena* arena, uint32_t* indices);
-sc_slice* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends);
+sc_vector* sc_create_vector(uint64_t size, sc_TYPES type, ccb_arena* arena);
+sc_dimensions* sc_create_dimensions(uint64_t dims_count, ccb_arena* arena, uint64_t* dims);
+sc_index* sc_create_index(uint64_t count, ccb_arena* arena, uint64_t* indices);
+sc_slice* sc_create_slice(uint64_t count, ccb_arena* arena, uint64_t* starts, uint64_t* ends);
 sc_tensor* sc_create_tensor(sc_dimensions* dims, sc_TYPES type, ccb_arena* arena);
 
 sc_vector* sc_clone_vector(sc_vector* vector, ccb_arena* arena);
@@ -94,8 +94,8 @@ double sc_value_to_f64(sc_value_t value);
 sc_value_t sc_value_as(sc_value_t a, sc_TYPES target_type);
 
 
-void sc_data_to_vector(sc_vector* vector, void* data, uint32_t count);
-void sc_data_to_tensor(sc_tensor* tensor, void* data, uint32_t count);
+void sc_data_to_vector(sc_vector* vector, void* data, uint64_t count);
+void sc_data_to_tensor(sc_tensor* tensor, void* data, uint64_t count);
 
 void sc_print_index(sc_index* index);
 void sc_print_dimensions(sc_dimensions* dims);
@@ -103,8 +103,8 @@ void sc_print_slice(sc_slice* slice);
 void sc_print_vector(sc_vector* vector);
 void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena);
 
-sc_value_t sc_get_vector_element(sc_vector* vector, uint32_t index);
-void sc_set_vector_element(sc_vector* vector, uint32_t index, sc_value_t value);
+sc_value_t sc_get_vector_element(sc_vector* vector, uint64_t index);
+void sc_set_vector_element(sc_vector* vector, uint64_t index, sc_value_t value);
 sc_vector* sc_get_vector_slice(sc_vector* vector, sc_slice* slice, ccb_arena* arena);
 
 sc_value_t sc_get_tensor_element(sc_tensor* tensor, sc_index* index);
