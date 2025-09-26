@@ -1078,12 +1078,11 @@ void gen_test_get_sub_tensor(FILE* file, test_data test) {
     fprintf(file, "        }\n");
     fprintf(file, "        sc_set_tensor_element(tensor, zero_idx, val);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    uint32_t start[3] = {1, 1};\n");
+    fprintf(file, "    uint32_t start[3] = {1, 0};\n");
     fprintf(file, "    sc_index* indices = sc_create_index(2, arena, start);\n");
     fprintf(file, "    CCB_NOTNULL(indices, \"Failed to create indices\");\n\n");
     fprintf(file, "    sc_tensor* sub_tensor = sc_get_sub_tensor(tensor, indices, arena);\n");
     fprintf(file, "    CCB_NOTNULL(sub_tensor, \"Failed to create sub-tensor\");\n\n");
-    fprintf(file, "    CCB_INFO(\"Sub-tensor allocated: %%p\", sub_tensor);\n");
     fprintf(file, "    uint32_t expected_shape[1] = {4};\n");
     fprintf(file, "    if (sub_tensor->dims->dims_count != 1 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {\n");
     fprintf(file, "        CCB_WARNING(\"Sub-tensor shape mismatch: expected [4], got [%%u, %%u, %%u]\", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);\n");

@@ -1092,14 +1092,13 @@ int test_get_sub_tensor___bf16(ccb_arena* arena) {
         sc_set_tensor_element(tensor, zero_idx, val);
     }
 
-    uint32_t start[3] = {1, 1};
+    uint32_t start[3] = {1, 0};
     sc_index* indices = sc_create_index(2, arena, start);
     CCB_NOTNULL(indices, "Failed to create indices");
 
     sc_tensor* sub_tensor = sc_get_sub_tensor(tensor, indices, arena);
     CCB_NOTNULL(sub_tensor, "Failed to create sub-tensor");
 
-    CCB_INFO("Sub-tensor allocated: %p", sub_tensor);
     uint32_t expected_shape[1] = {4};
     if (sub_tensor->dims->dims_count != 1 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {
         CCB_WARNING("Sub-tensor shape mismatch: expected [4], got [%u, %u, %u]", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);
@@ -2160,14 +2159,13 @@ int test_get_sub_tensor_float(ccb_arena* arena) {
         sc_set_tensor_element(tensor, zero_idx, val);
     }
 
-    uint32_t start[3] = {1, 1};
+    uint32_t start[3] = {1, 0};
     sc_index* indices = sc_create_index(2, arena, start);
     CCB_NOTNULL(indices, "Failed to create indices");
 
     sc_tensor* sub_tensor = sc_get_sub_tensor(tensor, indices, arena);
     CCB_NOTNULL(sub_tensor, "Failed to create sub-tensor");
 
-    CCB_INFO("Sub-tensor allocated: %p", sub_tensor);
     uint32_t expected_shape[1] = {4};
     if (sub_tensor->dims->dims_count != 1 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {
         CCB_WARNING("Sub-tensor shape mismatch: expected [4], got [%u, %u, %u]", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);
@@ -3228,14 +3226,13 @@ int test_get_sub_tensor_double(ccb_arena* arena) {
         sc_set_tensor_element(tensor, zero_idx, val);
     }
 
-    uint32_t start[3] = {1, 1};
+    uint32_t start[3] = {1, 0};
     sc_index* indices = sc_create_index(2, arena, start);
     CCB_NOTNULL(indices, "Failed to create indices");
 
     sc_tensor* sub_tensor = sc_get_sub_tensor(tensor, indices, arena);
     CCB_NOTNULL(sub_tensor, "Failed to create sub-tensor");
 
-    CCB_INFO("Sub-tensor allocated: %p", sub_tensor);
     uint32_t expected_shape[1] = {4};
     if (sub_tensor->dims->dims_count != 1 || memcmp(sub_tensor->dims->dims, expected_shape, sizeof(expected_shape)) != 0) {
         CCB_WARNING("Sub-tensor shape mismatch: expected [4], got [%u, %u, %u]", sub_tensor->dims->dims[0], sub_tensor->dims->dims[1], sub_tensor->dims->dims[2]);
