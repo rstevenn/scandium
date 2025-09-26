@@ -97,6 +97,9 @@ sc_value_t sc_value_as(sc_value_t a, sc_TYPES target_type);
 void sc_data_to_vector(sc_vector* vector, void* data, uint32_t count);
 void sc_data_to_tensor(sc_tensor* tensor, void* data, uint32_t count);
 
+void sc_print_index(sc_index* index);
+void sc_print_dimensions(sc_dimensions* dims);
+void sc_print_slice(sc_slice* slice);
 void sc_print_vector(sc_vector* vector);
 void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena);
 
@@ -107,6 +110,7 @@ sc_vector* sc_get_vector_slice(sc_vector* vector, sc_slice* slice, ccb_arena* ar
 sc_value_t sc_get_tensor_element(sc_tensor* tensor, sc_index* index);
 sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* arena);
 void sc_set_tensor_element(sc_tensor* tensor, sc_index* index, sc_value_t value);
+sc_tensor* sc_get_tensor_slice(sc_tensor* tensor, sc_slice* slice, ccb_arena* arena);
 
 
 #endif // __DATA_H__

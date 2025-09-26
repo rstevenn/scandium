@@ -452,6 +452,40 @@ void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena) {
 }
 
 
+void sc_print_index(sc_index* index) {
+    printf("Index (count: %u): [", index->count);
+    for (uint32_t i = 0; i < index->count; i++) {
+        printf("%u", index->indices[i]);
+        if (i < index->count - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
+
+void sc_print_dimensions(sc_dimensions* dims) {
+    printf("Dimensions (count: %u): [", dims->dims_count);
+    for (uint32_t i = 0; i < dims->dims_count; i++) {
+        printf("%u", dims->dims[i]);
+        if (i < dims->dims_count - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
+
+void sc_print_slice(sc_slice* slice) {
+    printf("Slice (count: %u): [", slice->count);
+    for (uint32_t i = 0; i < slice->count; i++) {
+        printf("[%u, %u)", slice->slices[i].start, slice->slices[i].end);
+        if (i < slice->count - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
+
+
 
 // Values functions
 sc_value_t to_sc_value(double value, sc_TYPES type) {
@@ -714,7 +748,13 @@ sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* aren
 
     for (uint32_t i = 0; i < sub_tensor->size; i++) {
         for (uint32_t j = 0; j < sub_tensor->dims->dims_count; j++) {
-            target_index->indices[j] = (i / (j == 0 ? 1 : sub_tensor->dims->dims[j - 1])) % sub_tensor->dims->dims[j];
+            
+            uint32_t num = 1;
+            for (uint32_t k = 0; k < j; k++) {
+                num *= sub_tensor->dims->dims[k];
+            }
+            
+            target_index->indices[j] = (i / (num)) % sub_tensor->dims->dims[j];
             source_index->indices[j+index->count] = target_index->indices[j];
         }
         sc_value_t value = sc_get_tensor_element(tensor, source_index);
@@ -762,4 +802,56 @@ void sc_set_tensor_element(sc_tensor* tensor, sc_index* index, sc_value_t value)
             break;
     }
 }
+
+
+sc_tensor* sc_get_tensor_slice(sc_tensor* tensor, sc_slice* slice, ccb_arena* arena) {
+    if (slice->count != tensor->dims->dims_count) {
+        CCB_ERROR("Slice count %u does not match tensor dimensions count %u", slice->count, tensor->dims->dims_count);
+        return NULL;
+    }
+
+    uint32_t* new_dims = (uint32_t*)ccb_arena_malloc(arena, tensor->dims->dims_count * sizeof(uint32_t));
+    CCB_NOTNULL(new_dims, "Failed to allocate memory for new tensor dimensions");
+
+    for (uint32_t i = 0; i < slice->count; i++) {
+        uint32_t start = slice->slices[i].start;
+        uint32_t end = slice->slices[i].end;
+
+        if (start >= tensor->dims->dims[i] || end > tensor->dims->dims[i] || start >= end) {
+            CCB_ERROR("Invalid slice range [%u, %u) for dimension %u of size %u", start, end, i, tensor->dims->dims[i]);
+            return NULL;
+        }
+
+        new_dims[i] = end - start;
+    }
+
+    sc_dimensions* new_dims_struct = sc_create_dimensions(tensor->dims->dims_count, arena, new_dims);
+    CCB_NOTNULL(new_dims_struct, "Failed to create new tensor dimensions struct");
+
+    sc_tensor* sub_tensor = sc_create_tensor(new_dims_struct, tensor->type, arena);
+    CCB_NOTNULL(sub_tensor, "Failed to create sub tensor");
+
+    sc_index* source_index = sc_create_empty_index(tensor->dims->dims_count, arena);
+    CCB_NOTNULL(source_index, "Failed to create source index");
+
+    sc_index* target_index = sc_create_empty_index(sub_tensor->dims->dims_count, arena);
+    CCB_NOTNULL(target_index, "Failed to create target index");
+
+    for (uint32_t i = 0; i < sub_tensor->size; i++) {
+        for (uint32_t j = 0; j < sub_tensor->dims->dims_count; j++) {
+            uint32_t num = 1;
+            for (uint32_t k = 0; k < j; k++) {
+                num *= sub_tensor->dims->dims[k];
+            }
+            target_index->indices[j] = (i / (num)) % sub_tensor->dims->dims[j];
+            source_index->indices[j] = target_index->indices[j] + slice->slices[j].start;
+        }
+        
+        sc_value_t value = sc_get_tensor_element(tensor, source_index);
+        sc_set_tensor_element(sub_tensor, target_index, value);
+    }
+
+    return sub_tensor;
+}
+
 
