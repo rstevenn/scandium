@@ -1180,7 +1180,7 @@ int main(void) {
     fprintf(file, "     int passed = 0;\n");
     fprintf(file, "     int failed = 0;\n");
     fprintf(file, "     int total = 0;\n\n");
-    fprintf(file, "     ccb_InitLog(\"log\\\\test.log\");\n\n");
+    fprintf(file, "     ccb_InitLog(\"log/test.log\");\n\n");
     
 
 
@@ -1227,7 +1227,7 @@ int main(void) {
 
 
     fprintf(file, "    CCB_INFO(\"Tests completed: \\e[32m%%d passed\\e[0m, \\e[31m%%d failed\\e[0m, %%d total\", passed, failed, total);\n");
-    fprintf(file, "    CCB_INFO(\"Success rate: \\e[33m%%.2f%%\\e[0m\", (passed / (float)total) * 100.0f);\n\n");
+    fprintf(file, "    CCB_INFO(\"Success rate: \\e[33m%%.2f%%%%\\e[0m\", (passed / (float)total) * 100.0f);\n\n");
     fprintf(file, "    ccb_arena_free(arena);\n");
     fprintf(file, "    if (failed > 0) {\n");
     fprintf(file, "        CCB_ERROR(\"Some tests failed\");\n");

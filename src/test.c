@@ -3260,7 +3260,7 @@ int main(void) {
      int failed = 0;
      int total = 0;
 
-     ccb_InitLog("log\\test.log");
+     ccb_InitLog("log/test.log");
 
      if (test_dims_creation_(arena) == 0) {
          CCB_INFO("\e[32m[V] test_dims_creation_(null) passed\e[0m");
@@ -4283,7 +4283,7 @@ int main(void) {
      ccb_arena_reset(arena);
 
     CCB_INFO("Tests completed: \e[32m%d passed\e[0m, \e[31m%d failed\e[0m, %d total", passed, failed, total);
-    CCB_INFO("Success rate: \e[33m%.2f%\e[0m", (passed / (float)total) * 100.0f);
+    CCB_INFO("Success rate: \e[33m%.2f%%\e[0m", (passed / (float)total) * 100.0f);
 
     ccb_arena_free(arena);
     if (failed > 0) {

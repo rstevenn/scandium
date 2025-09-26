@@ -2,4 +2,5 @@
 .vs/
 build/
 log/
+src/test.c
 !.gitignore # To avoid directory being empty
