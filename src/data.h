@@ -15,97 +15,97 @@
 
 // data structures
 typedef enum {
-    CL_float16,
-    CL_float32,
-    CL_float64,
-} CL_TYPES;
+    sc_float16,
+    sc_float32,
+    sc_float64,
+} sc_TYPES;
 
 
-typedef struct cl_vector_t {
+typedef struct sc_vector_t {
     void* data;
     uint32_t size;
-    CL_TYPES type;
-} cl_vector;
+    sc_TYPES type;
+} sc_vector;
 
 
 typedef union {
     __bf16 f16;
     float f32;
     double f64;
-} cl_number_t;
+} sc_number_t;
 
 typedef struct {
-    CL_TYPES type;
-    cl_number_t value;
-} cl_value_t;
+    sc_TYPES type;
+    sc_number_t value;
+} sc_value_t;
 
-typedef struct cl_dimensions_t {
+typedef struct sc_dimensions_t {
     uint32_t dims_count;
     uint32_t* dims;
-} cl_dimensions;
+} sc_dimensions;
 
-typedef struct  cl_index_t {
+typedef struct  sc_index_t {
     uint32_t* indices;
     uint32_t count;
-} cl_index;
+} sc_index;
 
 
 typedef struct {
     uint32_t start;
     uint32_t end;
-} cl_slice_el_t;
+} sc_slice_el_t;
 
 typedef struct {
-    cl_slice_el_t* slices;
+    sc_slice_el_t* slices;
     uint32_t count;
-} cl_slice_t;
+} sc_slice_t;
 
 
-typedef struct cl_tensor_t {
+typedef struct sc_tensor_t {
     void* data;
-    cl_dimensions* dims;
+    sc_dimensions* dims;
     uint32_t size;
-    CL_TYPES type;
-} cl_tensor;
+    sc_TYPES type;
+} sc_tensor;
 
 
 // data functions
-cl_dimensions* cl_create_empty_dimensions(uint32_t dims_count, ccb_arena* arena);
-cl_slice_t* cl_create_empty_slice(uint32_t count, ccb_arena* arena);
-cl_index* cl_create_empty_index(uint32_t count, ccb_arena* arena);
+sc_dimensions* sc_create_empty_dimensions(uint32_t dims_count, ccb_arena* arena);
+sc_slice_t* sc_create_empty_slice(uint32_t count, ccb_arena* arena);
+sc_index* sc_create_empty_index(uint32_t count, ccb_arena* arena);
 
-cl_vector* cl_create_vector(uint32_t size, CL_TYPES type, ccb_arena* arena);
-cl_dimensions* cl_create_dimensions(uint32_t dims_count, ccb_arena* arena, uint32_t* dims);
-cl_index* cl_create_index(uint32_t count, ccb_arena* arena, uint32_t* indices);
-cl_slice_t* cl_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends);
-cl_tensor* cl_create_tensor(cl_dimensions* dims, CL_TYPES type, ccb_arena* arena);
+sc_vector* sc_create_vector(uint32_t size, sc_TYPES type, ccb_arena* arena);
+sc_dimensions* sc_create_dimensions(uint32_t dims_count, ccb_arena* arena, uint32_t* dims);
+sc_index* sc_create_index(uint32_t count, ccb_arena* arena, uint32_t* indices);
+sc_slice_t* sc_create_slice(uint32_t count, ccb_arena* arena, uint32_t* starts, uint32_t* ends);
+sc_tensor* sc_create_tensor(sc_dimensions* dims, sc_TYPES type, ccb_arena* arena);
 
-cl_vector* cl_clone_vector(cl_vector* vector, ccb_arena* arena);
-cl_tensor* cl_clone_tensor(cl_tensor* tensor, ccb_arena* arena);
-cl_index* cl_clone_index(cl_index* index, ccb_arena* arena);
-cl_slice_t* cl_clone_slice(cl_slice_t* slice, ccb_arena* arena);
-cl_dimensions* cl_clone_dimensions(cl_dimensions* dimensions, ccb_arena* arena);
-
-
-cl_value_t to_cl_value(double number, CL_TYPES);
-__bf16 cl_value_to_f16(cl_value_t value);
-float cl_value_to_f32(cl_value_t value);
-double cl_value_to_f64(cl_value_t value);
-cl_value_t cl_value_as(cl_value_t a, CL_TYPES target_type);
+sc_vector* sc_clone_vector(sc_vector* vector, ccb_arena* arena);
+sc_tensor* sc_clone_tensor(sc_tensor* tensor, ccb_arena* arena);
+sc_index* sc_clone_index(sc_index* index, ccb_arena* arena);
+sc_slice_t* sc_clone_slice(sc_slice_t* slice, ccb_arena* arena);
+sc_dimensions* sc_clone_dimensions(sc_dimensions* dimensions, ccb_arena* arena);
 
 
-void cl_data_to_vector(cl_vector* vector, void* data, uint32_t count);
-void cl_data_to_tensor(cl_tensor* tensor, void* data, uint32_t count);
+sc_value_t to_sc_value(double number, sc_TYPES);
+__bf16 sc_value_to_f16(sc_value_t value);
+float sc_value_to_f32(sc_value_t value);
+double sc_value_to_f64(sc_value_t value);
+sc_value_t sc_value_as(sc_value_t a, sc_TYPES target_type);
 
-void cl_print_vector(cl_vector* vector);
-void cl_print_tensor(cl_tensor* tensor, ccb_arena* tmp_arena);
 
-cl_value_t cl_get_vector_element(cl_vector* vector, uint32_t index);
-void cl_set_vector_element(cl_vector* vector, uint32_t index, cl_value_t value);
+void sc_data_to_vector(sc_vector* vector, void* data, uint32_t count);
+void sc_data_to_tensor(sc_tensor* tensor, void* data, uint32_t count);
 
-cl_value_t cl_get_tensor_element(cl_tensor* tensor, cl_index* index);
-cl_tensor* cl_get_sub_tensor(cl_tensor* tensor, cl_index* index, ccb_arena* arena);
-void cl_set_tensor_element(cl_tensor* tensor, cl_index* index, cl_value_t value);
+void sc_print_vector(sc_vector* vector);
+void sc_print_tensor(sc_tensor* tensor, ccb_arena* tmp_arena);
+
+sc_value_t sc_get_vector_element(sc_vector* vector, uint32_t index);
+void sc_set_vector_element(sc_vector* vector, uint32_t index, sc_value_t value);
+
+sc_value_t sc_get_tensor_element(sc_tensor* tensor, sc_index* index);
+sc_tensor* sc_get_sub_tensor(sc_tensor* tensor, sc_index* index, ccb_arena* arena);
+void sc_set_tensor_element(sc_tensor* tensor, sc_index* index, sc_value_t value);
 
 
 #endif // __DATA_H__
