@@ -1,0 +1,15 @@
+
+C:\Users\romai\Programming\scandium>gcc ./src/perfs.c ./src/data.c ./src/linalg.c ./ccbase/logs/log.c -O3 -o ./build/perf.exe  -lm -I ./ccbase -I ./src 
+
+C:\Users\romai\Programming\scandium>.\build\perf.exe
+Iteration 0/100
+Iteration 10/100
+Iteration 20/100
+Iteration 30/100
+Iteration 40/100
+Iteration 50/100
+Iteration 60/100
+Iteration 70/100
+Iteration 80/100
+Iteration 90/100
+Stress test took 0.212020 seconds per iteration.

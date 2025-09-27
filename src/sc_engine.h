@@ -20,10 +20,11 @@ typedef enum {
 
 typedef enum {
     sc_element_wise_op,
-    sc_scalar_op,
+    sc_element_scalar_op,
     sc_reduce_op,
     sc_map_op,
-    sc_map_args_op
+    sc_map_args_op,
+    sc_dot_op
 } sc_engine_op_type;
 
 typedef enum {
@@ -66,7 +67,7 @@ sc_task* sc_create_task(sc_engine_data_type data_type, sc_engine_op_type op_type
 
 #define sc_create_vector_element_wise_task(a, b, out, func, count, arena) sc_create_task(sc_vector_type, sc_element_wise_op, a, b, out, (sc_value_t){0}, NULL, (sc_engine_func){.scalar_func=func}, count, arena)
 #define sc_create_vector_scalar_task(a, scalar, out, func, count, arena) sc_create_task(sc_vector_type, sc_scalar_op, a, NULL, out, scalar, NULL, (sc_engine_func){.scalar_func=func}, count, arena)
-#define sc_create_vector_reduce_task(a, func, count, arena) sc_create_task(sc_vector_type, sc_reduce_op, a, NULL, NULL, (sc_value_t){0}, NULL, (sc_engine_func){.scalar_func=func}, count, arena)
+#define sc_create_vector_reduce_task(a, scalar, func, count, arena) sc_create_task(sc_vector_type, sc_reduce_op, a, NULL, NULL, scalar, NULL, (sc_engine_func){.scalar_func=func}, count, arena)
 #define sc_create_vector_map_task(a, out, func, count, arena) sc_create_task(sc_vector_type, sc_map_op, a, NULL, out, (sc_value_t){0}, NULL, (sc_engine_func){.scalar_func_map=func}, count, arena)
 #define sc_create_vector_map_args_task(a, out, func, args, count, arena) sc_create_task(sc_vector_type, sc_map_args_op, a, NULL, out, (sc_value_t){0}, args, (sc_engine_func){.scalar_func_map_args=func}, count, arena)
 

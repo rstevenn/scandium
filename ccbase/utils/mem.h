@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#define byte sizeof(char)
-#define kb 1024*byte
+#define _byte sizeof(char)
+#define kb 1024*_byte
 #define mb 1024*kb
 #define gb 1024*mb
 #define tb 1024*gb
