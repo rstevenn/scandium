@@ -38,6 +38,9 @@ void stress_test(sc_vector* a, sc_vector* b) {
 
 
 int main(int argc, char** argv) {
+    ccb_InitLog("log/perfs.log");
+
+
     ccb_arena* arena = ccb_init_arena();
     CCB_NOTNULL(arena, "Failed to create arena");
 

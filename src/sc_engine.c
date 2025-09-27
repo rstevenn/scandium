@@ -234,6 +234,7 @@ struct thread_data {
     sc_value_t scalar;
     sc_value_t (*func)(sc_value_t, sc_value_t);
     sc_TYPES type;
+    sc_engine_data_type data_type;
     uint64_t count;
     uint64_t id;
     uint64_t thread_count;
@@ -241,7 +242,7 @@ struct thread_data {
 
 
 
-int multi_execute_element_wise_op(void* args) {
+void* multi_execute_element_wise_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* b = data->b;
@@ -264,7 +265,7 @@ int multi_execute_element_wise_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return -1;
+        return (void*)-1;
     }
     
     void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -275,7 +276,7 @@ int multi_execute_element_wise_op(void* args) {
         end_delta = start_delta;
     } 
 
-    return execute_element_wise_op(a_start, b_start, out_start, data->func, data->type, end_delta);
+    return (void*)(uint64_t)(a_start, b_start, out_start, data->func, data->type, end_delta);
 }
 
 int multi_execute_scalar_element_op(void* args) {
@@ -379,8 +380,9 @@ int multi_execute_map_op(void* args) {
     if (data->id != data->thread_count - 1) {
         end_delta = start_delta;
     } 
-
-    return execute_map_op(a_start, out_start, data->func, data->type, end_delta);
+    
+    CCB_NOT_IMPLEMENTED();
+    //return execute_map_op(a_start, out_start, data->func, data->type, end_delta);
 }
 
 
@@ -388,12 +390,12 @@ int multi_execute_map_args_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* out = data->out;
-    void* args = data->args;
+    void* _args = data->args;
 
     CCB_NOTNULL(data, "data is NULL");
     CCB_NOTNULL(a, "a is NULL");
     CCB_NOTNULL(out, "out is NULL");
-    CCB_NOTNULL(args, "args is NULL");
+    CCB_NOTNULL(_args, "args is NULL");
 
     int start_delta = data->count / data->thread_count;
     int end_delta = data->count % data->thread_count;
@@ -417,7 +419,8 @@ int multi_execute_map_args_op(void* args) {
         end_delta = start_delta;
     } 
 
-    return execute_map_args_op(start_a, start_out, data->func, data->type, end_delta, args);
+    CCB_NOT_IMPLEMENTED();
+    //return execute_map_args_op(start_a, start_out, data->func, data->type, end_delta, _args);
 }
 
 
@@ -512,12 +515,14 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
 
 
 sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
-    int thread_count = sc_get_thread_count();
+    int thread_count = get_cpu_count();
     
     void* a  = NULL;
     void* b  = NULL;
     void* out_data = NULL;
     sc_TYPES type;
+    sc_engine_data_type data_type;
+
 
     out->succes = 0;
 
@@ -534,8 +539,12 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
             if (task->out != NULL) {
                 out_data = ((sc_vector*)task->out)->data;
             }
-            
+
             type = ((sc_vector*)task->a)->type;
+            data_type = sc_vector_type;
+            
+            break;
+
 
         case sc_tensor_type:
             CCB_NOT_IMPLEMENTED();
@@ -553,6 +562,8 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
         .out = out_data,
         .args = task->args,
         .scalar = task->scalar,
+        .data_type = data_type,
+        .func = task->task_func.scalar_func,
         .type = type,
         .count = task->opration_count,
         .thread_count = thread_count
@@ -562,8 +573,29 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     thread_t* threads = (thread_t*)malloc(thread_count * sizeof(thread_t));
 
 
-    
+    for (uint64_t i = 0; i < thread_count; i++) {
+        data.id = i;
+        
+        switch (task->op_type) {
+            case sc_element_wise_op:
+                create_thread(&threads[i], multi_execute_element_wise_op, &data);
+                break;
 
+            
+
+            default:
+                CCB_ERROR("Unsupported operation type %d", task->op_type);
+                return out;
+        }
+    }
+
+    for (uint64_t i = 0; i < thread_count; i++) {
+        join_thread(&threads[i]);
+    }
+
+    out->succes = 1;
+    out->result = out_data;
+    
 
 
 

@@ -104,7 +104,7 @@ void ccb_CloseLogFile();
 
 // DEFAULT VERSIONS
 #if CCB_LOGTYPE == 1
-    #define CCB_ERROR(...) {CCB_FERROR(__VA_ARGS__); exit(-1);}
+    #define CCB_ERROR(...) {CCB_FERROR(__VA_ARGS__);}
     #define CCB_WARNING(...) CCB_FWARNING(__VA_ARGS__)
     #define CCB_INFO(...) CCB_FINFO(__VA_ARGS__)
     #define CCB_NOT_IMPLEMENTED() CCB_FNOT_IMPLEMENTED()
@@ -113,7 +113,7 @@ void ccb_CloseLogFile();
 
 #else
 #if CCB_LOGTYPE == 2
-    #define CCB_ERROR(...) {CCB_PERROR(__VA_ARGS__) CCB_FERROR(__VA_ARGS__) exit(-1); }
+    #define CCB_ERROR(...) {CCB_PERROR(__VA_ARGS__) CCB_FERROR(__VA_ARGS__)}
     #define CCB_WARNING(...) CCB_PWARNING(__VA_ARGS__) CCB_FWARNING(__VA_ARGS__)
     #define CCB_INFO(...) CCB_PINFO(__VA_ARGS__) CCB_FINFO(__VA_ARGS__)
     #define CCB_NOT_IMPLEMENTED() CCB_PNOT_IMPLEMENTED() CCB_FNOT_IMPLEMENTED()
@@ -121,7 +121,7 @@ void ccb_CloseLogFile();
     #define CCB_CHECK(cond, ...) {CCB_PCHECK(cond, __VA_ARGS__) CCB_FCHECK(cond, __VA_ARGS__)}
 
 #else
-    #define CCB_ERROR(...) {CCB_PERROR(__VA_ARGS__) exit(-1);}
+    #define CCB_ERROR(...) {CCB_PERROR(__VA_ARGS__)}
     #define CCB_WARNING(...) CCB_PWARNING(__VA_ARGS__)
     #define CCB_INFO(...) CCB_PINFO(__VA_ARGS__)
     #define CCB_NOT_IMPLEMENTED() CCB_PNOT_IMPLEMENTED()
