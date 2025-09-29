@@ -12,6 +12,15 @@
 // #########################
 // General vector operations
 // #########################
+ccb_arena* local_arena = NULL;
+
+inline void init_tmp_arena() {
+    if (local_arena == NULL) {
+        local_arena = ccb_init_arena();
+    }
+}
+
+
 
 sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(sc_value_t, sc_value_t), ccb_arena* arena) {
     if (a->size != b->size) {
@@ -40,45 +49,30 @@ sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(
 
 
 sc_vector* sc_for_each_vector_op_inplace(sc_vector* a, sc_vector* b, sc_value_t (*func)(sc_value_t, sc_value_t)) {
+    init_tmp_arena();
+
     if (a->size != b->size) {
         CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
         return NULL;
     }
+    
     if (a->type != b->type) {
         CCB_ERROR("Vector type mismatch: %d vs %d", a->type, b->type);
         return NULL;
     }
 
-    for (uint64_t i = 0; i < a->size; i++) {
-        switch (a->type) {
-            case sc_float16: {
-                __bf16* a_data = (__bf16*)a->data;
-                __bf16* b_data = (__bf16*)b->data;
-                a_data[i] = func((sc_value_t){.type=sc_float16, .value.f16=a_data[i]},
-                                 (sc_value_t){.type=sc_float16, .value.f16=b_data[i]}).value.f16;
-                break;
-            }
-            case sc_float32: {
-                float* a_data = (float*)a->data;
-                float* b_data = (float*)b->data;
-                a_data[i] = func((sc_value_t){.type=sc_float32, .value.f32=a_data[i]},
-                                 (sc_value_t){.type=sc_float32, .value.f32=b_data[i]}).value.f32;
-                break;
-            }
-            case sc_float64: {
-                double* a_data = (double*)a->data;
-                double* b_data = (double*)b->data;
-                a_data[i] = func((sc_value_t){.type=sc_float64, .value.f64=a_data[i]},
-                                 (sc_value_t){.type=sc_float64, .value.f64=b_data[i]}).value.f64;
-                break;
-            }
-            default:
-                CCB_ERROR("Unsupported sc_TYPES value %d", a->type);
-                return NULL;
-        }
-    }
+    sc_vector* result = a;
+    sc_task_result out;
+    sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, local_arena);
+    sc_execute_task(task, sc_single_thread, &out, local_arena);
+    ccb_arena_reset(local_arena);
 
-    return a;
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector operation task");
+        return NULL;
+    }
+    
+    return result;
 }
 
 
@@ -392,7 +386,13 @@ sc_vector* sc_vector_add(sc_vector* a, sc_vector* b, ccb_arena* arena) {
         return NULL;
     }
 
-    return sc_for_each_vector_op(a, b, sc_scalar_add, arena);
+    sc_vector* result = sc_for_each_vector_op(a, b, sc_scalar_add, arena);
+    if (result == NULL) {
+        CCB_ERROR("Failed to add vectors");
+        return NULL;
+    }
+
+    return result;
 }
 
 
@@ -402,7 +402,15 @@ sc_vector* sc_vector_add_inplace(sc_vector* a, sc_vector* b) {
         return NULL;
     }
 
-    return sc_for_each_vector_op_inplace(a, b, sc_scalar_add);
+
+    
+    sc_vector* result = sc_for_each_vector_op_inplace(a, b, sc_scalar_add);
+    if (result == NULL) {
+        CCB_ERROR("Failed to add vectors");
+        return NULL;
+    }
+
+    return result;
 }
 
 sc_vector* sc_vector_add_scalar(sc_vector* a, sc_value_t b, ccb_arena* arena) {
@@ -420,7 +428,14 @@ sc_vector* sc_vector_sub(sc_vector* a, sc_vector* b, ccb_arena* arena) {
         return NULL;
     }
 
-    return sc_for_each_vector_op(a, b, sc_scalar_sub, arena);
+    
+    sc_vector* result = sc_for_each_vector_op(a, b, sc_scalar_sub, arena);
+    if (result == NULL) {
+        CCB_ERROR("Failed to add vectors");
+        return NULL;
+    }
+
+    return result;
 }
 
 sc_vector* sc_vector_sub_inplace(sc_vector* a, sc_vector* b) {

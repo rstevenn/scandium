@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <process.h>
 typedef HANDLE thread_t;
-typedef CRITICAL_SECTION mutex_t;
+typedef CRITICAL_SECTION* mutex_t;
 #else
 #include <pthread.h>
 typedef pthread_t thread_t;

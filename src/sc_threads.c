@@ -52,7 +52,68 @@ int join_thread(thread_t thread) {
 
 
 
-int create_mutex(mutex_t* mutex);
-int destroy_mutex(mutex_t mutex);
-int lock_mutex(mutex_t mutex);
-int unlock_mutex(mutex_t mutex);
+int create_mutex(mutex_t* mutex) {
+    #ifdef _WIN32
+        *mutex = CreateMutex(NULL, FALSE, NULL);
+        if (*mutex == NULL) {
+            return -1;
+        }
+        return 0;
+    #else
+        int rc = pthread_mutex_init(mutex, NULL);
+        if (rc != 0) {
+            return -1;
+        }
+        return 0;
+    #endif
+}
+
+
+int destroy_mutex(mutex_t mutex) {
+    #ifdef _WIN32
+        int rc = CloseHandle(mutex);
+        if (rc == 0) {
+            return -1;
+        }
+        return 0;
+    #else
+        int rc = pthread_mutex_destroy(&mutex);
+        if (rc != 0) {
+            return -1;
+        }
+        return 0;
+    #endif
+}
+
+int lock_mutex(mutex_t mutex) {
+    #ifdef _WIN32
+        int rc = WaitForSingleObject(mutex, INFINITE);
+        if (rc == WAIT_FAILED) {
+            return -1;
+        }
+        return 0;
+    #else
+        int rc = pthread_mutex_lock(&mutex);
+        if (rc != 0) {
+            return -1;
+        }
+        return 0;
+    #endif
+}
+
+
+int unlock_mutex(mutex_t mutex) {
+    #ifdef _WIN32
+        int rc = ReleaseMutex(mutex);
+        if (rc == 0) {
+            return -1;
+        }
+        return 0;
+    #else
+        int rc = pthread_mutex_unlock(&mutex);
+        if (rc != 0) {
+            return -1;
+        }
+        return 0;
+    #endif
+}

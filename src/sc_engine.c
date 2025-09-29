@@ -8,6 +8,24 @@
 #include <stdint.h>
 
 
+struct thread_data {
+    int succes;
+    void* a;
+    void* b;
+    void* out;
+    void* args;
+    sc_value_t scalar;
+    sc_engine_func func;
+    sc_TYPES type;
+    sc_engine_data_type data_type;
+    uint64_t count;
+    uint64_t id;
+    uint64_t thread_count;
+    mutex_t mutex;
+};
+
+
+
 
 // single thread functions
 int execute_element_wise_op(void* a, void* b, void* out, sc_value_t (*func)(sc_value_t, sc_value_t), sc_TYPES type, uint64_t count) {
@@ -226,21 +244,6 @@ int execute_dot_op(void* a, void* b, sc_value_t (*func)(sc_value_t, sc_value_t),
 
 
 // multi thread warpers
-struct thread_data {
-    void* a;
-    void* b;
-    void* out;
-    void* args;
-    sc_value_t scalar;
-    sc_value_t (*func)(sc_value_t, sc_value_t);
-    sc_TYPES type;
-    sc_engine_data_type data_type;
-    uint64_t count;
-    uint64_t id;
-    uint64_t thread_count;
-};
-
-
 
 void* multi_execute_element_wise_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
@@ -276,7 +279,14 @@ void* multi_execute_element_wise_op(void* args) {
         end_delta = start_delta;
     } 
 
-    return (void*)(uint64_t)(a_start, b_start, out_start, data->func, data->type, end_delta);
+    uint64_t _out = (uint64_t)(a_start, b_start, out_start, data->func, data->type, end_delta);
+
+    lock_mutex(data->mutex);
+    data->succes++;
+    unlock_mutex(data->mutex);
+
+
+    return (void*)_out;
 }
 
 int multi_execute_scalar_element_op(void* args) {
@@ -311,7 +321,7 @@ int multi_execute_scalar_element_op(void* args) {
         end_delta = start_delta;
     } 
 
-    return execute_scalar_element_op(a_start, data->scalar, out_start, data->func, data->type, end_delta);
+    return execute_scalar_element_op(a_start, data->scalar, out_start, data->func.scalar_func, data->type, end_delta);
 }
 
 
@@ -346,7 +356,7 @@ int multi_execute_reduce_op(void* args) {
     } 
     
 
-    return execute_reduce_op(a_start, data->scalar, data->func, data->type, end_delta, &data->scalar);
+    return execute_reduce_op(a_start, data->scalar, data->func.scalar_func, data->type, end_delta, &data->scalar);
 }
 
 
@@ -381,8 +391,7 @@ int multi_execute_map_op(void* args) {
         end_delta = start_delta;
     } 
     
-    CCB_NOT_IMPLEMENTED();
-    //return execute_map_op(a_start, out_start, data->func, data->type, end_delta);
+    return execute_map_op(a_start, out_start, data->func.scalar_func_map, data->type, end_delta);
 }
 
 
@@ -419,8 +428,7 @@ int multi_execute_map_args_op(void* args) {
         end_delta = start_delta;
     } 
 
-    CCB_NOT_IMPLEMENTED();
-    //return execute_map_args_op(start_a, start_out, data->func, data->type, end_delta, _args);
+    return execute_map_args_op(start_a, start_out, data->func.scalar_func_map_args, data->type, end_delta, _args);
 }
 
 
@@ -563,11 +571,17 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
         .args = task->args,
         .scalar = task->scalar,
         .data_type = data_type,
-        .func = task->task_func.scalar_func,
+        .func = task->task_func,
         .type = type,
         .count = task->opration_count,
-        .thread_count = thread_count
+        .thread_count = get_cpu_count(),
+        .mutex = NULL,
+        .succes = 0,
+        .id = 0,
     };
+
+    create_mutex(&data.mutex);
+
 
     // lanch threads
     thread_t* threads = (thread_t*)malloc(thread_count * sizeof(thread_t));
@@ -590,15 +604,23 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     }
 
     for (uint64_t i = 0; i < thread_count; i++) {
-        join_thread(&threads[i]);
+        if (join_thread(threads[i]) == -1) {
+            CCB_ERROR("Failed to join thread %d", i);
+            out->succes = 0;
+            return out;
+        }
+    }
+
+    if (data.succes != thread_count) {
+        CCB_ERROR("Failed to execute multi thread operation: %d/%d", data.succes, thread_count);
+        out->succes = 0;
+        return out;
     }
 
     out->succes = 1;
     out->result = out_data;
     
-
-
-
+    destroy_mutex(data.mutex);
     free(threads);
    
 }
