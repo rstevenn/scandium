@@ -5,6 +5,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <process.h>
+
 typedef HANDLE thread_t;
 typedef CRITICAL_SECTION* mutex_t;
 #else

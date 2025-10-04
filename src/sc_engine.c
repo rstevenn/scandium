@@ -441,7 +441,6 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
     sc_TYPES type;
 
     out->succes = 0;
-    
     CCB_NOTNULL(task->a, "task->a is NULL");
     CCB_NOTNULL(task->task_func.scalar_func, "task->task_func is NULL");
     
@@ -457,13 +456,20 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
 
             if (task->out != NULL) {
                 out_data = ((sc_vector*)task->out)->data;
+                ((sc_vector*)task->out)->type = ((sc_vector*)task->a)->type;
+                ((sc_vector*)task->out)->size = ((sc_vector*)task->a)->size;
             }
             
             type = ((sc_vector*)task->a)->type;
+            
+
+            break;
+
 
         case sc_tensor_type:
-            CCB_NOT_IMPLEMENTED();
-            break;
+            CCB_ERROR("Not implemented, datatype: %d", task->data_type);
+            return out;
+
 
         default:
             CCB_ERROR("Unsupported sc_TYPES value %d", task->data_type);
@@ -516,7 +522,21 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
     }
 
     out->succes = 1;
-    out->result = out_data;
+
+    switch (task->data_type) {
+        case sc_vector_type:
+            ((sc_vector*)task->out)->data = out_data;
+            break;
+
+        case sc_tensor_type:
+            ((sc_vector*)task->out)->data = out_data;
+            break;
+
+        default:
+            CCB_ERROR("Unsupported sc_TYPES value %d", task->data_type);
+            return out;
+    }
+
     return out;
 }
 
@@ -618,10 +638,25 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     }
 
     out->succes = 1;
-    out->result = out_data;
     
+    switch (task->data_type) {
+        case sc_vector_type:
+            ((sc_vector*)task->out)->data = out_data;
+            break;
+
+        case sc_tensor_type:
+            ((sc_vector*)task->out)->data = out_data;
+            break;
+
+        default:
+            CCB_ERROR("Unsupported sc_TYPES value %d", task->data_type);
+            return out;
+    }
+
     destroy_mutex(data.mutex);
     free(threads);
+
+    return out;
    
 }
 

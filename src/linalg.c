@@ -14,7 +14,7 @@
 // #########################
 ccb_arena* local_arena = NULL;
 
-inline void init_tmp_arena() {
+void init_tmp_arena() {
     if (local_arena == NULL) {
         local_arena = ccb_init_arena();
     }
@@ -33,7 +33,6 @@ sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(
     }
 
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
-    CCB_NOTNULL(result, "Failed to create result vector");
 
     sc_task_result out;
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, arena);
@@ -64,7 +63,9 @@ sc_vector* sc_for_each_vector_op_inplace(sc_vector* a, sc_vector* b, sc_value_t 
     sc_vector* result = a;
     sc_task_result out;
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, local_arena);
-    sc_execute_task(task, sc_single_thread, &out, local_arena);
+
+    
+    sc_execute_task(task, sc_auto, &out, local_arena);
     ccb_arena_reset(local_arena);
 
     if (!out.succes) {
