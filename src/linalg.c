@@ -33,10 +33,10 @@ sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(
     }
 
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
-
     sc_task_result out;
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, arena);
-    sc_execute_task(task, sc_auto, &out, arena);
+    
+    sc_execute_task(task, sc_multi_thread, &out, arena);
 
     if (!out.succes) {
         CCB_ERROR("Failed to execute vector operation task");
@@ -65,7 +65,7 @@ sc_vector* sc_for_each_vector_op_inplace(sc_vector* a, sc_vector* b, sc_value_t 
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, local_arena);
 
     
-    sc_execute_task(task, sc_auto, &out, local_arena);
+    sc_execute_task(task, sc_multi_thread, &out, local_arena);
     ccb_arena_reset(local_arena);
 
     if (!out.succes) {
@@ -388,6 +388,7 @@ sc_vector* sc_vector_add(sc_vector* a, sc_vector* b, ccb_arena* arena) {
     }
 
     sc_vector* result = sc_for_each_vector_op(a, b, sc_scalar_add, arena);
+    
     if (result == NULL) {
         CCB_ERROR("Failed to add vectors");
         return NULL;

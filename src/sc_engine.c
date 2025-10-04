@@ -456,8 +456,6 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
 
             if (task->out != NULL) {
                 out_data = ((sc_vector*)task->out)->data;
-                ((sc_vector*)task->out)->type = ((sc_vector*)task->a)->type;
-                ((sc_vector*)task->out)->size = ((sc_vector*)task->a)->size;
             }
             
             type = ((sc_vector*)task->a)->type;
@@ -481,7 +479,7 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
         case sc_element_wise_op:
             CCB_NOTNULL(task->b, "task->b is NULL for element wise operation");
             CCB_NOTNULL(task->out, "task->out is NULL for element wise operation");
-            out_code = execute_element_wise_op(a, b, task->out, task->task_func.scalar_func, type, task->opration_count);
+            out_code = execute_element_wise_op(a, b, out_data, task->task_func.scalar_func, type, task->opration_count);
             break;
 
         case sc_element_scalar_op:
@@ -536,7 +534,6 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
             CCB_ERROR("Unsupported sc_TYPES value %d", task->data_type);
             return out;
     }
-
     return out;
 }
 
@@ -655,7 +652,7 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
 
     destroy_mutex(data.mutex);
     free(threads);
-
+    
     return out;
    
 }
@@ -700,7 +697,7 @@ sc_task_result* sc_execute_task(sc_task* task, sc_execution_mode mode, sc_task_r
             exec_mode = sc_single_thread;
         }
     }
-
+    
     switch (exec_mode) {
         case sc_single_thread:
             return execute_single_thread(task, out);
