@@ -256,8 +256,8 @@ void* multi_execute_element_wise_op(void* args) {
     CCB_NOTNULL(b, "b is NULL");
     CCB_NOTNULL(out, "out is NULL");
 
-    int start_delta = data->count / data->thread_count;
-    int end_delta = data->count % data->thread_count;
+    int start_delta = (data->count) / (float)data->thread_count;
+    int end_delta = start_delta + data->count % data->thread_count;
     
     int data_size = 0;
     if (data->type == sc_float16) {
@@ -270,16 +270,19 @@ void* multi_execute_element_wise_op(void* args) {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
         return (void*)-1;
     }
-    
-    void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
-    void* b_start = (void*)((uintptr_t)b + data->id * start_delta * data_size);
-    void* out_start = (void*)((uintptr_t)out + data->id * start_delta * data_size);
 
     if (data->id != data->thread_count - 1) {
         end_delta = start_delta;
     } 
 
-    uint64_t _out = (uint64_t)(a_start, b_start, out_start, data->func, data->type, end_delta);
+
+    void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
+    void* b_start = (void*)((uintptr_t)b + data->id * start_delta * data_size);
+    void* out_start = (void*)((uintptr_t)out + data->id * start_delta * data_size);
+    
+    
+    uint64_t _out = (uint64_t)execute_element_wise_op(a_start, b_start, out_start, data->func.scalar_func, data->type, end_delta);
+
 
     lock_mutex(data->mutex);
     data->succes++;
@@ -541,6 +544,7 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
 
 sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     int thread_count = get_cpu_count();
+    thread_count = min(thread_count, task->opration_count);
     
     void* a  = NULL;
     void* b  = NULL;
@@ -581,23 +585,13 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     }
 
     // configure threads
-    struct thread_data data = {
-        .a = a,
-        .b = b,
-        .out = out_data,
-        .args = task->args,
-        .scalar = task->scalar,
-        .data_type = data_type,
-        .func = task->task_func,
-        .type = type,
-        .count = task->opration_count,
-        .thread_count = get_cpu_count(),
-        .mutex = NULL,
-        .succes = 0,
-        .id = 0,
-    };
+    struct thread_data* data = (struct thread_data*)malloc(thread_count * sizeof(struct thread_data));
+    CCB_NOTNULL(data, "Failed to allocate thread data");
+    
 
-    create_mutex(&data.mutex);
+
+    mutex_t mutex;
+    create_mutex(&mutex);
 
 
     // lanch threads
@@ -605,11 +599,23 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
 
 
     for (uint64_t i = 0; i < thread_count; i++) {
-        data.id = i;
+        data[i].a = a;
+        data[i].b = b;
+        data[i].out = out_data;
+        data[i].args = task->args;
+        data[i].scalar = task->scalar;
+        data[i].data_type = data_type;
+        data[i].func = task->task_func;
+        data[i].type = type;
+        data[i].count = task->opration_count;
+        data[i].thread_count = thread_count;
+        data[i].mutex = mutex;
+        data[i].succes = 0;
+        data[i].id = i;
         
         switch (task->op_type) {
             case sc_element_wise_op:
-                create_thread(&threads[i], multi_execute_element_wise_op, &data);
+                create_thread(&threads[i], multi_execute_element_wise_op, &data[i]);
                 break;
 
             
@@ -620,16 +626,18 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
         }
     }
 
+    int rate = 0;
     for (uint64_t i = 0; i < thread_count; i++) {
         if (join_thread(threads[i]) == -1) {
             CCB_ERROR("Failed to join thread %d", i);
             out->succes = 0;
             return out;
         }
+        rate += data[i].succes;
     }
-
-    if (data.succes != thread_count) {
-        CCB_ERROR("Failed to execute multi thread operation: %d/%d", data.succes, thread_count);
+    
+    if (rate != thread_count) {
+        CCB_ERROR("Failed to execute multi thread operation: %d/%d", rate, thread_count);
         out->succes = 0;
         return out;
     }
@@ -650,8 +658,9 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
             return out;
     }
 
-    destroy_mutex(data.mutex);
+    destroy_mutex(mutex);
     free(threads);
+    free(data);
     
     return out;
    
