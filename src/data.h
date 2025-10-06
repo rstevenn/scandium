@@ -2,7 +2,7 @@
 #define __DATA_H__
 
 #include <stdint.h>
-#include "../ccbase/utils/mem.h"
+#include "ccbase/utils/mem.h"
 
 
 // define f16

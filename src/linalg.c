@@ -2,7 +2,7 @@
 #include "linalg.h"
 #include "sc_engine.h"
 #include "const.h"
-#include "../ccbase/logs/log.h"
+#include "ccbase/logs/log.h"
 
 #include <stdlib.h>
 #include <string.h>

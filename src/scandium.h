@@ -5,8 +5,8 @@
 #include "data.h"
 #include "linalg.h"
 
-#include "../ccbase/utils/mem.h"
-#include "../ccbase/logs/log.h"
+#include "ccbase/utils/mem.h"
+#include "ccbase/logs/log.h"
 
 
 

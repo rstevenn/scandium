@@ -2,7 +2,7 @@
 #define __LINALG_H__
 
 #include <stdint.h>
-#include "../ccbase/utils/mem.h"
+#include "ccbase/utils/mem.h"
 #include "data.h"
 
 // scalar maths

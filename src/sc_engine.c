@@ -1,8 +1,8 @@
 #include "sc_engine.h"
 #include "sc_threads.h" 
 #include "const.h"
-#include "../ccbase/logs/log.h"
-#include "../ccbase/utils/mem.h"
+#include "ccbase/logs/log.h"
+#include "ccbase/utils/mem.h"
 
 #include <stdlib.h>
 #include <stdint.h>

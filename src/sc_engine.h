@@ -3,7 +3,7 @@
 
 #include "data.h"
 #include "linalg.h"
-#include "../ccbase/utils/mem.h"
+#include "ccbase/utils/mem.h"
 
 // if the operation size is above this treshold it will be executed in multiple threads
 #define MULTITHRAD_OPRATION_TRESHOLD 1024
