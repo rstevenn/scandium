@@ -126,17 +126,25 @@ sc_vector* sc_for_each_vector_scalar_op_inplace(sc_vector* a, sc_value_t b, sc_v
 
 
 sc_value_t sc_vector_reduce(sc_vector* a, sc_value_t (*func)(sc_value_t, sc_value_t), sc_value_t initial) {
+    init_tmp_arena();
+
     if (a->size == 0) {
         return initial;
     }
 
-    sc_value_t result = initial;
 
-    for (uint64_t i = 0; i < a->size; i++) {
+    sc_task* task = sc_create_vector_reduce_task(a, initial, func, a->size, local_arena);
 
-        result = func(result, sc_get_vector_element(a, i));
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, local_arena);
+    ccb_arena_reset(local_arena);
+
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector reduce task");
+        return initial;
     }
-    return result;
+
+    return out.scalar_result;
 }
 
 

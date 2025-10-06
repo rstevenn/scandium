@@ -283,11 +283,11 @@ void* multi_execute_element_wise_op(void* args) {
     
     uint64_t _out = (uint64_t)execute_element_wise_op(a_start, b_start, out_start, data->func.scalar_func, data->type, end_delta);
 
-
-    lock_mutex(data->mutex);
-    data->succes++;
-    unlock_mutex(data->mutex);
-
+    if (_out == 0) {
+        lock_mutex(data->mutex);
+        data->succes++;
+        unlock_mutex(data->mutex);
+    }
 
     return (void*)_out;
 }
@@ -326,15 +326,17 @@ void* multi_execute_scalar_element_op(void* args) {
 
     uint64_t return_code = execute_scalar_element_op(a_start, data->scalar, out_start, data->func.scalar_func, data->type, end_delta); 
     
-    lock_mutex(data->mutex);
-    data->succes++;
-    unlock_mutex(data->mutex);
+    if (return_code == 0) {
+        lock_mutex(data->mutex);
+        data->succes++;
+        unlock_mutex(data->mutex);
+    }
 
     return (void*)return_code;
 }
 
 
-int multi_execute_reduce_op(void* args) {
+void* multi_execute_reduce_op(void* args) {
     
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
@@ -344,7 +346,7 @@ int multi_execute_reduce_op(void* args) {
 
 
     int start_delta = data->count / data->thread_count;
-    int end_delta = data->count % data->thread_count;
+    int end_delta = start_delta + data->count % data->thread_count;
     
     int data_size = 0;
     if (data->type == sc_float16) {
@@ -355,7 +357,7 @@ int multi_execute_reduce_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return -1;
+        return (void*)-1;
     }
 
     void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -364,9 +366,17 @@ int multi_execute_reduce_op(void* args) {
         end_delta = start_delta;
     } 
     
+    uint64_t return_code = execute_reduce_op(a_start, data->scalar, data->func.scalar_func, data->type, end_delta, &data->scalar); 
 
-    return execute_reduce_op(a_start, data->scalar, data->func.scalar_func, data->type, end_delta, &data->scalar);
+    if (return_code == 0) {
+        lock_mutex(data->mutex);
+        data->succes++;
+        unlock_mutex(data->mutex);
+    }
+
+    return (void*)return_code;
 }
+
 
 
 int multi_execute_map_op(void* args) {
@@ -497,7 +507,6 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
             break;
 
         case sc_reduce_op:
-            CCB_NOTNULL(task->out, "task->out is NULL for reduce operation");
             out_code = execute_reduce_op(a, task->scalar, task->task_func.scalar_func, type, task->opration_count, &out->scalar_result);
             break;
         
@@ -532,7 +541,9 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
 
     switch (task->data_type) {
         case sc_vector_type:
-            ((sc_vector*)task->out)->data = out_data;
+            if (task->op_type != sc_reduce_op){
+                ((sc_vector*)task->out)->data = out_data;
+            } 
             break;
 
         case sc_tensor_type:
@@ -602,8 +613,8 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
 
     // lanch threads
     thread_t* threads = (thread_t*)malloc(thread_count * sizeof(thread_t));
-
-
+    CCB_NOTNULL(threads, "Failed to allocate threads");
+ 
     for (uint64_t i = 0; i < thread_count; i++) {
         data[i].a = a;
         data[i].b = b;
@@ -626,6 +637,10 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
 
             case sc_element_scalar_op:
                 create_thread(&threads[i], multi_execute_scalar_element_op, &data[i]);
+                break;
+
+            case sc_reduce_op:
+                create_thread(&threads[i], multi_execute_reduce_op, &data[i]);
                 break;
 
 
@@ -652,10 +667,19 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     }
 
     out->succes = 1;
-    
+
+    if (task->op_type == sc_reduce_op) {
+        out->scalar_result = task->scalar;
+        for (uint64_t i = 0; i < thread_count; i++) {
+            out->scalar_result = task->task_func.scalar_func(out->scalar_result, data[i].scalar);
+        }
+    }
+
     switch (task->data_type) {
         case sc_vector_type:
-            ((sc_vector*)task->out)->data = out_data;
+            if (task->op_type != sc_reduce_op){
+                ((sc_vector*)task->out)->data = out_data;
+            }
             break;
 
         case sc_tensor_type:
