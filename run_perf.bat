@@ -1,2 +1,3 @@
-gcc ./src/perfs.c ./src/data.c ./src/sc_engine.c ./src/sc_threads.c ./src/linalg.c ./ccbase/logs/log.c -O3 -o ./build/perf.exe  -lm -I ./ccbase -I ./src
+call .\build_lib.bat
+gcc ./src/perfs.c ./build/scandium.a -O3 -o ./build/perf.exe 
 .\build\perf.exe
