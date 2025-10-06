@@ -1,7 +1,8 @@
 # Scandium
-A high performance machine learning library written in c
+A high performance machine learning library written in c \\
+
 This project is a work in progress and something I do alone in my free time,
-their may be bugs, memory issues and it may not work on your specific machine/OS
+there may be bugs and it may not work on your specific machine/OS
 
 ## Elements
 - linalg: a linear algebra library for tensors and vectors
