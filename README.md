@@ -5,7 +5,7 @@ This project is a work in progress and something I do alone in my free time,
 there may be bugs and it may not work on your specific machine/OS
 
 ## Usage
-code:
+#### Code
 ```c
 #include "scandium.h"
 
@@ -16,13 +16,13 @@ int main(){
     float a[10] = {1,  2, 3, 4, 5, 6, 7, 8, 9, 10};
     float b[10] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
 
-    sc_vector* vec1 = sc_create_vector(size, sc_float32, arena);
-    sc_vector* vec2 = sc_create_vector(size, sc_float32, arena);
+    sc_vector* vec1 = sc_create_vector(10, sc_float32, arena);
+    sc_vector* vec2 = sc_create_vector(10, sc_float32, arena);
     
     sc_data_to_vector(vec1, a, 10);
     sc_data_to_vector(vec2, b, 10);
 
-    sc_vector* result = c_vector_add(vec1, vec2, arena);
+    sc_vector* result = sc_vector_add(vec1, vec2, arena);
     sc_print_vector(result);
     
     ccb_arena_free(arena);
@@ -32,11 +32,26 @@ int main(){
 }
 ```
 
-compilation
-```bash
+#### Compilation
+```
 $ gcc main.c ./build/scandium.a -o main
 ```
 
+#### Output
+```
+$ ./main
+Vector (size: 10, type: float32):
+  [0]: 11.000000
+  [1]: 11.000000
+  [2]: 11.000000
+  [3]: 11.000000
+  [4]: 11.000000
+  [5]: 11.000000
+  [6]: 11.000000
+  [7]: 11.000000
+  [8]: 11.000000
+  [9]: 11.000000
+```
 
 ## Elements
 - linalg: a linear algebra library for tensors and vectors
