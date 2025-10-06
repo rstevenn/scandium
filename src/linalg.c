@@ -36,7 +36,7 @@ sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(
     sc_task_result out;
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, arena);
     
-    sc_execute_task(task, sc_multi_thread, &out, arena);
+    sc_execute_task(task, sc_auto, &out, arena);
 
     if (!out.succes) {
         CCB_ERROR("Failed to execute vector operation task");
@@ -65,7 +65,7 @@ sc_vector* sc_for_each_vector_op_inplace(sc_vector* a, sc_vector* b, sc_value_t 
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, local_arena);
 
     
-    sc_execute_task(task, sc_multi_thread, &out, local_arena);
+    sc_execute_task(task, sc_auto, &out, local_arena);
     ccb_arena_reset(local_arena);
 
     if (!out.succes) {
@@ -85,65 +85,43 @@ sc_vector* sc_for_each_vector_scalar_op(sc_vector* a, sc_value_t b, sc_value_t (
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint64_t i = 0; i < a->size; i++) {
-        switch (a->type) {
-            case sc_float16: {
-                __bf16* a_data = (__bf16*)a->data;
-                __bf16* r_data = (__bf16*)result->data;
-                r_data[i] = func((sc_value_t){.type=sc_float16, .value.f16=a_data[i]}, b).value.f16;
-                break;
-            }
-            case sc_float32: {
-                float* a_data = (float*)a->data;
-                float* r_data = (float*)result->data;
-                r_data[i] = func((sc_value_t){.type=sc_float32, .value.f32=a_data[i]}, b).value.f32;
-                break;
-            }
-            case sc_float64: {
-                double* a_data = (double*)a->data;
-                double* r_data = (double*)result->data;
-                r_data[i] = func((sc_value_t){.type=sc_float64, .value.f64=a_data[i]}, b).value.f64;
-                break;
-            }
-            default:
-                CCB_ERROR("Unsupported sc_TYPES value %d", a->type);
-                return NULL;
-        }
-    }
+    sc_task* task = sc_create_vector_scalar_task(a, b, result, func, a->size, arena);
+    
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, arena);
 
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector operation task");
+        return NULL;
+    }
+    
     return result;
 }
 
 sc_vector* sc_for_each_vector_scalar_op_inplace(sc_vector* a, sc_value_t b, sc_value_t (*func)(sc_value_t, sc_value_t)) {
+    init_tmp_arena();
+
     if (a->type != b.type) {
         CCB_ERROR("Vector and scalar type mismatch: %d vs %d", a->type, b.type);
         return NULL;
     }
+    sc_vector* result = a;
+    CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint64_t i = 0; i < a->size; i++) {
-        switch (a->type) {
-            case sc_float16: {
-                __bf16* a_data = (__bf16*)a->data;
-                a_data[i] = func((sc_value_t){.type=sc_float16, .value.f16=a_data[i]}, b).value.f16;
-                break;
-            }
-            case sc_float32: {
-                float* a_data = (float*)a->data;
-                a_data[i] = func((sc_value_t){.type=sc_float32, .value.f32=a_data[i]}, b).value.f32;
-                break;
-            }
-            case sc_float64: {
-                double* a_data = (double*)a->data;
-                a_data[i] = func((sc_value_t){.type=sc_float64, .value.f64=a_data[i]}, b).value.f64;
-                break;
-            }
-            default:
-                CCB_ERROR("Unsupported sc_TYPES value %d", a->type);
-                return NULL;
-        }
+    sc_task* task = sc_create_vector_scalar_task(a, b, result, func, a->size, local_arena);
+    
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, local_arena);
+    ccb_arena_reset(local_arena);
+
+    
+
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector operation task");
+        return NULL;
     }
-
-    return a;
+    
+    return result;
 }
 
 
