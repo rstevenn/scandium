@@ -16,4 +16,4 @@ their may be bugs, memory issues and it may not work on your specific machine/OS
 ## TODO
 - implement linear regression
 - implement logistic regression
-- implement neural networks with modular architecture
+- implement neural networks with a modular architecture
