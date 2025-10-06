@@ -10,21 +10,31 @@ there may be bugs and it may not work on your specific machine/OS
 #include "scandium.h"
 
 int main(){
+    // init logs and memory
     ccb_InitLog("logs.log");
     ccb_arena* arena = ccb_init_arena();
     
+    // create data
     float a[10] = {1,  2, 3, 4, 5, 6, 7, 8, 9, 10};
     float b[10] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
 
+    // create vectors
     sc_vector* vec1 = sc_create_vector(10, sc_float32, arena);
     sc_vector* vec2 = sc_create_vector(10, sc_float32, arena);
     
+    // load data into vector
     sc_data_to_vector(vec1, a, 10);
     sc_data_to_vector(vec2, b, 10);
 
-    sc_vector* result = sc_vector_add(vec1, vec2, arena);
+    // execute operations
+    sc_vector* result = sc_vector_sub(vec1, vec2, arena);
+    result = sc_vector_map_inplace(result, sc_scalar_abs);
+    result = sc_vector_div_scalar_inplace(result, to_sc_value(3, sc_float32));
+
+    // print result
     sc_print_vector(result);
     
+    // free memory and close logs
     ccb_arena_free(arena);
     ccb_CloseLogFile();
 
@@ -41,16 +51,16 @@ $ gcc main.c ./build/scandium.a -o main
 ```
 $ ./main
 Vector (size: 10, type: float32):
-  [0]: 11.000000
-  [1]: 11.000000
-  [2]: 11.000000
-  [3]: 11.000000
-  [4]: 11.000000
-  [5]: 11.000000
-  [6]: 11.000000
-  [7]: 11.000000
-  [8]: 11.000000
-  [9]: 11.000000
+  [0]: 3.000000
+  [1]: 2.333333
+  [2]: 1.666667
+  [3]: 1.000000
+  [4]: 0.333333
+  [5]: 0.333333
+  [6]: 1.000000
+  [7]: 1.666667
+  [8]: 2.333333
+  [9]: 3.000000
 ```
 
 ## Elements
