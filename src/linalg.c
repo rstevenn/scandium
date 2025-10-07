@@ -537,6 +537,8 @@ sc_vector* sc_vector_div_scalar_inplace(sc_vector* a, sc_value_t b) {
 
 // dot
 sc_value_t sc_vector_dot(sc_vector* a, sc_vector* b) {
+    init_tmp_arena();
+
     if (a->size != b->size) {
         CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
         return (sc_value_t){0};
@@ -547,44 +549,10 @@ sc_value_t sc_vector_dot(sc_vector* a, sc_vector* b) {
         return (sc_value_t){0};
     }
 
-    sc_value_t out;
-    out.type = a->type;
-    
-    switch (a->type) {
-        case sc_float16: {
-            out.value.f16 = 0;
-            __bf16* a_data = (__bf16*)a->data;
-            __bf16* b_data = (__bf16*)b->data;
-            for (uint64_t i = 0; i < a->size; i++) {
-                out = sc_scalar_add(out, (sc_value_t){.type=sc_float16, .value.f16=a_data[i] * b_data[i]});
-            }
-            break;
+    sc_vector* tmp = sc_vector_mul_ellement_wise(a, b, local_arena);
 
-        case sc_float32: {
-            out.value.f32 = 0;
-            float* a_data = (float*)a->data;
-            float* b_data = (float*)b->data;
-            for (uint64_t i = 0; i < a->size; i++) {
-                out = sc_scalar_add(out, (sc_value_t){.type=sc_float32, .value.f32=a_data[i] * b_data[i]});
-            }
-            break;
-        }
-
-        case sc_float64: {
-            out.value.f64 = 0;
-            double* a_data = (double*)a->data;
-            double* b_data = (double*)b->data;
-            for (uint64_t i = 0; i < a->size; i++) {
-                out = sc_scalar_add(out, (sc_value_t){.type=sc_float64, .value.f64=a_data[i] * b_data[i]});
-            }
-            break;
-        }   
-
-        default:
-            CCB_ERROR("Unsupported sc_TYPES value %d", a->type);
-            return (sc_value_t){0};
-        }
-    }
+    sc_value_t out = sc_vector_reduce(tmp, sc_scalar_add, (sc_value_t){.type=a->type, .value.f32=0});
+    ccb_arena_reset(local_arena);
     return out;
 }   
 

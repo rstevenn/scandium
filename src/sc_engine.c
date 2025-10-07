@@ -236,12 +236,6 @@ int execute_map_args_op(void* a, void* out, sc_value_t (*func)(sc_value_t, void*
     return 0;
 }
 
-int execute_dot_op(void* a, void* b, sc_value_t (*func)(sc_value_t, sc_value_t), sc_TYPES type, uint64_t count, sc_value_t* out) {
-    
-    CCB_NOT_IMPLEMENTED();
-    return -1;
-}
-
 
 // multi thread warpers
 
@@ -534,12 +528,6 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
         case sc_map_args_op:
             CCB_NOTNULL(task->out, "task->out is NULL for map args operation");
             out_code = execute_map_args_op(a, out_data, task->task_func.scalar_func_map_args, type, task->opration_count, task->args);
-            break;
-
-        case sc_dot_op:
-            CCB_NOTNULL(task->b, "task->b is NULL for dot operation");
-            CCB_NOTNULL(task->out, "task->out is NULL for dot operation");
-            out_code = execute_dot_op(a, b, task->task_func.scalar_func, type, task->opration_count, &out->scalar_result);
             break;
 
         default:

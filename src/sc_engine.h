@@ -23,8 +23,7 @@ typedef enum {
     sc_element_scalar_op,
     sc_reduce_op,
     sc_map_op,
-    sc_map_args_op,
-    sc_dot_op
+    sc_map_args_op
 } sc_engine_op_type;
 
 typedef enum {
