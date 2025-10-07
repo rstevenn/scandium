@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 struct thread_data {
     int succes;
     void* a;

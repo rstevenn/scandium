@@ -9,6 +9,9 @@
 #include <math.h>
 
 
+#define EXEC_MOD sc_auto
+
+
 // #########################
 // General vector operations
 // #########################
@@ -36,7 +39,7 @@ sc_vector* sc_for_each_vector_op(sc_vector* a, sc_vector* b, sc_value_t (*func)(
     sc_task_result out;
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, arena);
     
-    sc_execute_task(task, sc_auto, &out, arena);
+    sc_execute_task(task, EXEC_MOD, &out, arena);
 
     if (!out.succes) {
         CCB_ERROR("Failed to execute vector operation task");
@@ -65,7 +68,7 @@ sc_vector* sc_for_each_vector_op_inplace(sc_vector* a, sc_vector* b, sc_value_t 
     sc_task* task = sc_create_vector_element_wise_task(a, b, result, func, a->size, local_arena);
 
     
-    sc_execute_task(task, sc_auto, &out, local_arena);
+    sc_execute_task(task, EXEC_MOD, &out, local_arena);
     ccb_arena_reset(local_arena);
 
     if (!out.succes) {
@@ -88,7 +91,7 @@ sc_vector* sc_for_each_vector_scalar_op(sc_vector* a, sc_value_t b, sc_value_t (
     sc_task* task = sc_create_vector_scalar_task(a, b, result, func, a->size, arena);
     
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, arena);
+    sc_execute_task(task, EXEC_MOD, &out, arena);
 
     if (!out.succes) {
         CCB_ERROR("Failed to execute vector operation task");
@@ -111,7 +114,7 @@ sc_vector* sc_for_each_vector_scalar_op_inplace(sc_vector* a, sc_value_t b, sc_v
     sc_task* task = sc_create_vector_scalar_task(a, b, result, func, a->size, local_arena);
     
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, local_arena);
+    sc_execute_task(task, EXEC_MOD, &out, local_arena);
     ccb_arena_reset(local_arena);
 
     
@@ -136,7 +139,7 @@ sc_value_t sc_vector_reduce(sc_vector* a, sc_value_t (*func)(sc_value_t, sc_valu
     sc_task* task = sc_create_vector_reduce_task(a, initial, func, a->size, local_arena);
 
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, local_arena);
+    sc_execute_task(task, EXEC_MOD, &out, local_arena);
     ccb_arena_reset(local_arena);
 
     if (!out.succes) {
@@ -155,7 +158,7 @@ sc_vector* sc_vector_map(sc_vector* a, sc_value_t (*func)(sc_value_t), ccb_arena
     sc_task* task = sc_create_vector_map_task(a, result, func, a->size, arena);
 
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, arena);
+    sc_execute_task(task, EXEC_MOD, &out, arena);
     
     if (!out.succes) {
         CCB_ERROR("Failed to execute vector map task");
@@ -174,7 +177,7 @@ sc_vector* sc_vector_map_inplace(sc_vector* a, sc_value_t (*func)(sc_value_t)){
     sc_task* task = sc_create_vector_map_task(a, result, func, a->size, local_arena);
 
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, local_arena);
+    sc_execute_task(task, EXEC_MOD, &out, local_arena);
     ccb_arena_reset(local_arena);
     
     if (!out.succes) {
@@ -193,7 +196,7 @@ sc_vector* sc_vector_map_args(sc_vector* a, sc_value_t (*func)(sc_value_t, void*
     sc_task* task = sc_create_vector_map_args_task(a, result, func, args, a->size, arena);
 
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, arena);
+    sc_execute_task(task, EXEC_MOD, &out, arena);
     
     if (!out.succes) {
         CCB_ERROR("Failed to execute vector map args task");
@@ -210,7 +213,7 @@ sc_vector* sc_vector_map_args_inplace(sc_vector* a, sc_value_t (*func)(sc_value_
     sc_task* task = sc_create_vector_map_args_task(a, result, func, args, a->size, local_arena);
 
     sc_task_result out;
-    sc_execute_task(task, sc_auto, &out, local_arena);
+    sc_execute_task(task, EXEC_MOD, &out, local_arena);
     ccb_arena_reset(local_arena);
     
     if (!out.succes) {
@@ -401,10 +404,6 @@ sc_value_t sc_scalar_root_args(sc_value_t a, void* args) {
 
 // add
 sc_vector* sc_vector_add(sc_vector* a, sc_vector* b, ccb_arena* arena) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
 
     sc_vector* result = sc_for_each_vector_op(a, b, sc_scalar_add, arena);
     
@@ -418,12 +417,6 @@ sc_vector* sc_vector_add(sc_vector* a, sc_vector* b, ccb_arena* arena) {
 
 
 sc_vector* sc_vector_add_inplace(sc_vector* a, sc_vector* b) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
-
     
     sc_vector* result = sc_for_each_vector_op_inplace(a, b, sc_scalar_add);
     if (result == NULL) {
@@ -444,11 +437,6 @@ sc_vector* sc_vector_add_scalar_inplace(sc_vector* a, sc_value_t b) {
 
 // sub
 sc_vector* sc_vector_sub(sc_vector* a, sc_vector* b, ccb_arena* arena) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
     
     sc_vector* result = sc_for_each_vector_op(a, b, sc_scalar_sub, arena);
     if (result == NULL) {
@@ -460,11 +448,6 @@ sc_vector* sc_vector_sub(sc_vector* a, sc_vector* b, ccb_arena* arena) {
 }
 
 sc_vector* sc_vector_sub_inplace(sc_vector* a, sc_vector* b) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
     return sc_for_each_vector_op_inplace(a, b, sc_scalar_sub);
 }
 
@@ -479,20 +462,10 @@ sc_vector* sc_vector_sub_scalar_inplace(sc_vector* a, sc_value_t b) {
 
 // mult
 sc_vector* sc_vector_mul_ellement_wise(sc_vector* a, sc_vector* b, ccb_arena* arena) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
     return sc_for_each_vector_op(a, b, sc_scalar_mul, arena);
 }
 
 sc_vector* sc_vector_mul_ellement_wise_inplace(sc_vector* a, sc_vector* b) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vectro size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
     return sc_for_each_vector_op_inplace(a, b, sc_scalar_mul);
 }
 
@@ -506,20 +479,10 @@ sc_vector* sc_vector_mul_scalar_inplace(sc_vector* a, sc_value_t b) {
 
 // div
 sc_vector* sc_vector_div_ellement_wise(sc_vector* a, sc_vector* b, ccb_arena* arena) {
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
     return sc_for_each_vector_op(a, b, sc_scalar_div, arena);
 }
 
 sc_vector* sc_vector_div_ellement_wise_inplace(sc_vector* a, sc_vector* b) {
-    if (a->size != b->size) {
-       CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return NULL;
-    }
-
     return sc_for_each_vector_op_inplace(a, b, sc_scalar_div);
 }
 
@@ -538,16 +501,6 @@ sc_vector* sc_vector_div_scalar_inplace(sc_vector* a, sc_value_t b) {
 // dot
 sc_value_t sc_vector_dot(sc_vector* a, sc_vector* b) {
     init_tmp_arena();
-
-    if (a->size != b->size) {
-        CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
-        return (sc_value_t){0};
-    }
-    
-    if (a->type != b->type) {
-        CCB_ERROR("Vector type mismatch: %d vs %d", a->type, b->type);
-        return (sc_value_t){0};
-    }
 
     sc_vector* tmp = sc_vector_mul_ellement_wise(a, b, local_arena);
 
@@ -611,7 +564,7 @@ sc_vector* sc_vector_cross(sc_vector* a, sc_vector* b, ccb_arena* arena) {
 }
 
 sc_vector* sc_vector_cross_inplace(sc_vector* a, sc_vector* b) {
- if (a->size != 3 || b->size != 3) {
+    if (a->size != 3 || b->size != 3) {
         CCB_ERROR("Vector size mismatch: %u vs %u", a->size, b->size);
         return NULL;
     }
@@ -673,9 +626,8 @@ sc_vector* sc_vector_cross_inplace(sc_vector* a, sc_vector* b) {
 
 
 sc_value_t norm_p_maper(sc_value_t a, void* b) {
-
+    
     sc_value_t b_val = *(sc_value_t *)b;
-
     return sc_scalar_pow(a, b_val);
 }
 

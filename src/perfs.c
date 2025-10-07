@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 
     // Example usage of scandium library
     uint64_t size = 10000000;
-    uint64_t op_count = 17*size;
+    uint64_t op_count = 19*size;
 
     sc_vector* vec1 = sc_create_vector(size, sc_float32, arena);
     sc_vector* vec2 = sc_create_vector(size, sc_float32, arena);
