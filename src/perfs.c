@@ -45,7 +45,9 @@ int main(int argc, char** argv) {
     CCB_NOTNULL(arena, "Failed to create arena");
 
     // Example usage of scandium library
-    uint64_t size = 1000000;
+    uint64_t size = 10000000;
+    uint64_t op_count = 17*size;
+
     sc_vector* vec1 = sc_create_vector(size, sc_float32, arena);
     sc_vector* vec2 = sc_create_vector(size, sc_float32, arena);
     sc_vector* result = sc_create_vector(size, sc_float32, arena);
@@ -67,6 +69,19 @@ int main(int argc, char** argv) {
 
     double time_spent = ((double)end - (double)start)/CLOCKS_PER_SEC / STRESS_TEST_ITERATIONS;
     printf("Stress test took %f seconds per iteration.\n", time_spent);
+    
+    char letters[] = "kMGTP";
+    float reminder =  op_count/time_spent;
+    char letter = ' ';
+    for (int i = 0; i < 5; i++) {
+        if (reminder < 1000) {
+            break;
+        }
+        letter = letters[i];
+        reminder /= 1000;
+    }
+
+    printf("Engine speed: %.02f %cop/s\n", reminder, letter);
 
     // Clean up
     ccb_arena_free(arena);

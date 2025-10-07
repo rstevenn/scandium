@@ -152,40 +152,73 @@ sc_vector* sc_vector_map(sc_vector* a, sc_value_t (*func)(sc_value_t), ccb_arena
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint64_t i = 0; i < a->size; i++) {
-        sc_set_vector_element(result, i, func(sc_get_vector_element(a, i)));
+    sc_task* task = sc_create_vector_map_task(a, result, func, a->size, arena);
+
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, arena);
+    
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector map task");
+        return NULL;
+    }
+
+    return result;
+
+}
+
+
+sc_vector* sc_vector_map_inplace(sc_vector* a, sc_value_t (*func)(sc_value_t)){
+    init_tmp_arena();
+
+    sc_vector* result = a;
+    sc_task* task = sc_create_vector_map_task(a, result, func, a->size, local_arena);
+
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, local_arena);
+    ccb_arena_reset(local_arena);
+    
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector map task");
+        return NULL;
     }
 
     return result;
 }
 
 
-sc_vector* sc_vector_map_inplace(sc_vector* a, sc_value_t (*func)(sc_value_t)){
-    for (uint64_t i = 0; i < a->size; i++) {
-        sc_set_vector_element(a, i, func(sc_get_vector_element(a, i)));
-    }
-
-    return a;
-}
-
 sc_vector* sc_vector_map_args(sc_vector* a, sc_value_t (*func)(sc_value_t, void*), ccb_arena* arena, void* args) {
     sc_vector* result = sc_create_vector(a->size, a->type, arena);
     CCB_NOTNULL(result, "Failed to create result vector");
 
-    for (uint64_t i = 0; i < a->size; i++) {
-        sc_set_vector_element(result, i, func(sc_get_vector_element(a, i), args));
+    sc_task* task = sc_create_vector_map_args_task(a, result, func, args, a->size, arena);
+
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, arena);
+    
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector map args task");
+        return NULL;
     }
 
     return result;
 }
 
 sc_vector* sc_vector_map_args_inplace(sc_vector* a, sc_value_t (*func)(sc_value_t, void*), void* args) {
+    init_tmp_arena();
+
+    sc_vector* result = a;
+    sc_task* task = sc_create_vector_map_args_task(a, result, func, args, a->size, local_arena);
+
+    sc_task_result out;
+    sc_execute_task(task, sc_auto, &out, local_arena);
+    ccb_arena_reset(local_arena);
     
-    for (uint64_t i = 0; i < a->size; i++) {
-        sc_set_vector_element(a, i, func(sc_get_vector_element(a, i), args));
+    if (!out.succes) {
+        CCB_ERROR("Failed to execute vector map args task");
+        return NULL;
     }
 
-    return a;
+    return result;
 }
 
 

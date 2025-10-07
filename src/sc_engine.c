@@ -379,7 +379,7 @@ void* multi_execute_reduce_op(void* args) {
 
 
 
-int multi_execute_map_op(void* args) {
+void* multi_execute_map_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* out = data->out;
@@ -389,7 +389,7 @@ int multi_execute_map_op(void* args) {
     CCB_NOTNULL(out, "out is NULL");
 
     int start_delta = data->count / data->thread_count;
-    int end_delta = data->count % data->thread_count;
+    int end_delta = start_delta+ data->count % data->thread_count;
     
     int data_size = 0;
     if (data->type == sc_float16) {
@@ -400,7 +400,7 @@ int multi_execute_map_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return -1;
+        return (void*)-1;
     }
 
     void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -410,11 +410,19 @@ int multi_execute_map_op(void* args) {
         end_delta = start_delta;
     } 
     
-    return execute_map_op(a_start, out_start, data->func.scalar_func_map, data->type, end_delta);
+    uint64_t return_code = execute_map_op(a_start, out_start, data->func.scalar_func_map, data->type, end_delta);
+
+    if (return_code == 0) {
+        lock_mutex(data->mutex);
+        data->succes++;
+        unlock_mutex(data->mutex);
+    }
+
+    return (void*)return_code;
 }
 
 
-int multi_execute_map_args_op(void* args) {
+void* multi_execute_map_args_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* out = data->out;
@@ -426,7 +434,7 @@ int multi_execute_map_args_op(void* args) {
     CCB_NOTNULL(_args, "args is NULL");
 
     int start_delta = data->count / data->thread_count;
-    int end_delta = data->count % data->thread_count;
+    int end_delta = start_delta+data->count % data->thread_count;
     
     int data_size = 0;
     if (data->type == sc_float16) {
@@ -437,7 +445,7 @@ int multi_execute_map_args_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return -1;
+        return (void*)-1;
     }
 
     void* start_a = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -447,7 +455,15 @@ int multi_execute_map_args_op(void* args) {
         end_delta = start_delta;
     } 
 
-    return execute_map_args_op(start_a, start_out, data->func.scalar_func_map_args, data->type, end_delta, _args);
+    uint64_t return_code = execute_map_args_op(start_a, start_out, data->func.scalar_func_map_args, data->type, end_delta, _args);
+
+    if (return_code == 0) {
+        lock_mutex(data->mutex);
+        data->succes++;
+        unlock_mutex(data->mutex);
+    }
+
+    return (void*)return_code;
 }
 
 
@@ -512,12 +528,12 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
         
         case sc_map_op:
             CCB_NOTNULL(task->out, "task->out is NULL for map operation");
-            out_code = execute_map_op(a, task->out, task->task_func.scalar_func_map, type, task->opration_count);
+            out_code = execute_map_op(a, out_data, task->task_func.scalar_func_map, type, task->opration_count);
             break;
 
         case sc_map_args_op:
             CCB_NOTNULL(task->out, "task->out is NULL for map args operation");
-            out_code = execute_map_args_op(a, task->out, task->task_func.scalar_func_map_args, type, task->opration_count, task->args);
+            out_code = execute_map_args_op(a, out_data, task->task_func.scalar_func_map_args, type, task->opration_count, task->args);
             break;
 
         case sc_dot_op:
@@ -643,6 +659,13 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
                 create_thread(&threads[i], multi_execute_reduce_op, &data[i]);
                 break;
 
+            case sc_map_op:
+                create_thread(&threads[i], multi_execute_map_op, &data[i]);
+                break;
+
+            case sc_map_args_op:
+                create_thread(&threads[i], multi_execute_map_args_op, &data[i]);
+                break;
 
             default:
                 CCB_ERROR("Unsupported operation type %d", task->op_type);
