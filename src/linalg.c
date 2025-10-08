@@ -437,7 +437,6 @@ sc_vector* sc_vector_add_scalar_inplace(sc_vector* a, sc_value_t b) {
 
 // sub
 sc_vector* sc_vector_sub(sc_vector* a, sc_vector* b, ccb_arena* arena) {
-    
     sc_vector* result = sc_for_each_vector_op(a, b, sc_scalar_sub, arena);
     if (result == NULL) {
         CCB_ERROR("Failed to add vectors");

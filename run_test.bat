@@ -1,4 +1,4 @@
-gcc ./src/generate_tests.c ./src/ccbase/logs/log.c -o ./build/gen_test.exe -lm -I ./ccbase -I ./src 
+gcc ./src/generate_tests.c ./src/ccbase/logs/log.c -o ./build/gen_test.exe -lm
 .\build\gen_test.exe
-gcc ./src/test.c ./src/data.c ./src/linalg.c ./src/ccbase/logs/log.c  ./src/sc_engine.c ./src/sc_threads.c  -o ./build/test  -lm -I ./ccbase -I ./src
+gcc ./src/test.c ./src/data.c ./src/linalg.c ./src/ccbase/logs/log.c  ./src/sc_engine.c ./src/sc_threads.c -mavx512vl -mavx512fp16 -o ./build/test  -lm
 .\build\test.exe

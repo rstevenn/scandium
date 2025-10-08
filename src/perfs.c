@@ -39,6 +39,10 @@ void stress_test(sc_vector* a, sc_vector* b) {
 
 int main(int argc, char** argv) {
     ccb_InitLog("log/perfs.log");
+    CCB_INFO("suports avx %d", __builtin_cpu_supports("avx"))
+    CCB_INFO("suports avx2 %d", __builtin_cpu_supports("avx2"))
+
+
 
 
     ccb_arena* arena = ccb_init_arena();

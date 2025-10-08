@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <immintrin.h>
 
 struct thread_data {
     int succes;
@@ -24,6 +25,26 @@ struct thread_data {
 };
 
 
+int element_wise_avx_f16(void* a, void* b, void* out, sc_value_t (*func)(sc_value_t, sc_value_t), uint64_t count) {
+    if (func == sc_scalar_add) {
+        for (uint64_t i = 0; i < count; i+=16){
+            __m256h x = *(__m256h*)&((__bf16*)a)[i];
+            __m256h y = *(__m256h*)&((__bf16*)b)[i];
+            __m256h z = _mm256_add_ph(x, y);
+
+            *(__m256h*)&((__bf16*)out)[i] = z;
+        }
+
+
+        for (uint64_t i = 0; i < count%16; i++) {
+            ((__bf16*)out)[i] = func(to_sc_value((float)((__bf16*)a)[i], sc_float16), to_sc_value((float)((__bf16*)b)[i], sc_float16)).value.f16;
+        }
+
+        return 0;
+    }
+
+    return -1;
+}
 
 
 // single thread functions
@@ -34,6 +55,12 @@ int execute_element_wise_op(void* a, void* b, void* out, sc_value_t (*func)(sc_v
             __bf16* a_data = (__bf16*)a;
             __bf16* b_data = (__bf16*)b;
             __bf16* out_data = (__bf16*)out;
+
+            if (__builtin_cpu_supports("avx") >= 256) {
+                if (element_wise_avx_f16(a_data, b_data, out_data, func, count) == 0) {
+                    return 0;
+                }
+            }
 
             for (uint64_t i = 0; i < count; i++) {
                 out_data[i] = func(to_sc_value((float)a_data[i], sc_float16),
