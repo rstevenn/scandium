@@ -9,7 +9,11 @@
 typedef HANDLE thread_t;
 typedef CRITICAL_SECTION* mutex_t;
 #else
+#define min(a, b) ((a>b) ? (b) : (a))
+
+
 #include <pthread.h>
+#include <unistd.h>
 typedef pthread_t thread_t;
 typedef pthread_mutex_t mutex_t;
 #endif
