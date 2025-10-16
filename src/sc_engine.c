@@ -25,19 +25,29 @@ struct thread_data {
 };
 
 
-int element_wise_avx_f16(void* a, void* b, void* out, sc_value_t (*func)(sc_value_t, sc_value_t), uint64_t count) {
+int element_wise_avx_f32(float* a, float* b, float* out, sc_value_t (*func)(sc_value_t, sc_value_t), uint64_t count) {
     if (func == sc_scalar_add) {
-        for (uint64_t i = 0; i < count; i+=16){
-            __m256h x = *(__m256h*)&((__bf16*)a)[i];
-            __m256h y = *(__m256h*)&((__bf16*)b)[i];
-            __m256h z = _mm256_add_ph(x, y);
+        CCB_INFO("Using AVX for float32 addition");
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
 
-            *(__m256h*)&((__bf16*)out)[i] = z;
+            if (i + 8 > count) break;
+            CCB_INFO("Processing elements %llu to %llu", i, i+7);
+            CCB_INFO("Loading a: %f %f %f %f %f %f %f %f", a[i], a[i+1], a[i+2], a[i+3], a[i+4], a[i+5], a[i+6], a[i+7]);
+            CCB_INFO("Loading b: %f %f %f %f %f %f %f %f", b[i], b[i+1], b[i+2], b[i+3], b[i+4], b[i+5], b[i+6], b[i+7]);
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_loadu_ps(&b[i]);
+            _out = _mm256_add_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+            CCB_INFO("Result: %f %f %f %f %f %f %f %f", out[i], out[i+1], out[i+2], out[i+3], out[i+4], out[i+5], out[i+6], out[i+7]);
+        
         }
 
-
-        for (uint64_t i = 0; i < count%16; i++) {
-            ((__bf16*)out)[i] = func(to_sc_value((float)((__bf16*)a)[i], sc_float16), to_sc_value((float)((__bf16*)b)[i], sc_float16)).value.f16;
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            CCB_INFO("Processing remaining element %llu", base+i);
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), to_sc_value(b[base+i], sc_float32)).value.f32;
         }
 
         return 0;
@@ -56,12 +66,6 @@ int execute_element_wise_op(void* a, void* b, void* out, sc_value_t (*func)(sc_v
             __bf16* b_data = (__bf16*)b;
             __bf16* out_data = (__bf16*)out;
 
-            if (__builtin_cpu_supports("avx") >= 256) {
-                if (element_wise_avx_f16(a_data, b_data, out_data, func, count) == 0) {
-                    return 0;
-                }
-            }
-
             for (uint64_t i = 0; i < count; i++) {
                 out_data[i] = func(to_sc_value((float)a_data[i], sc_float16),
                                    to_sc_value((float)b_data[i], sc_float16)).value.f16;
@@ -73,6 +77,13 @@ int execute_element_wise_op(void* a, void* b, void* out, sc_value_t (*func)(sc_v
             float* a_data = (float*)a;
             float* b_data = (float*)b;
             float* out_data = (float*)out;
+
+
+            if (__builtin_cpu_supports("avx") >= 256) {
+                if (element_wise_avx_f32(a_data, b_data, out_data, func, count) == 0) {
+                    return 0;
+                }
+            }
 
             for (uint64_t i = 0; i < count; i++) {
                 out_data[i] = func(to_sc_value(a_data[i], sc_float32),

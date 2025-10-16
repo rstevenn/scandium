@@ -320,6 +320,7 @@ void gen_test_vector_add(FILE* file, test_data test) {
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i + i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector addition mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i + i * 2), val.value.%s);\n", test.data_type, test.union_type);
+    fprintf(file, "            sc_print_vector(result);\n");
     fprintf(file, "            return -1;\n");
     fprintf(file, "        }\n");
     fprintf(file, "    }\n\n");
