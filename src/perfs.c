@@ -11,7 +11,7 @@ void stress_test(sc_vector* a, sc_vector* b) {
     sc_value_t scalar;
 
     for (int i = 0; i < STRESS_TEST_ITERATIONS; i++) {
-        if (i % 10 == 0) printf("Iteration %d/%d\n", i, STRESS_TEST_ITERATIONS);
+        if (i % 10 == 0) printf("Iteration %d/%d\n", i+10, STRESS_TEST_ITERATIONS);
         out = sc_vector_add(a, b, tmp_arena);
         out = sc_vector_add_inplace(a, b); 
         out = sc_vector_sub(a, b, tmp_arena);
@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
     ccb_InitLog("log/perfs.log");
     CCB_INFO("suports avx %d", __builtin_cpu_supports("avx"))
     CCB_INFO("suports avx2 %d", __builtin_cpu_supports("avx2"))
+    CCB_INFO("suports avx512f %d", __builtin_cpu_supports("avx512f"))
 
 
 

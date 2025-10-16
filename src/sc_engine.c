@@ -24,34 +24,217 @@ struct thread_data {
     mutex_t mutex;
 };
 
-
+// AVX optimized functions
 int element_wise_avx_f32(float* a, float* b, float* out, sc_value_t (*func)(sc_value_t, sc_value_t), uint64_t count) {
+
     if (func == sc_scalar_add) {
-        CCB_INFO("Using AVX for float32 addition");
         for (uint64_t i = 0; i < count; i+=8){
             __m256 x, y, _out;
 
             if (i + 8 > count) break;
-            CCB_INFO("Processing elements %llu to %llu", i, i+7);
-            CCB_INFO("Loading a: %f %f %f %f %f %f %f %f", a[i], a[i+1], a[i+2], a[i+3], a[i+4], a[i+5], a[i+6], a[i+7]);
-            CCB_INFO("Loading b: %f %f %f %f %f %f %f %f", b[i], b[i+1], b[i+2], b[i+3], b[i+4], b[i+5], b[i+6], b[i+7]);
 
             x = _mm256_loadu_ps(&a[i]);
             y = _mm256_loadu_ps(&b[i]);
             _out = _mm256_add_ps(x, y);
             _mm256_storeu_ps(&out[i], _out);
-            CCB_INFO("Result: %f %f %f %f %f %f %f %f", out[i], out[i+1], out[i+2], out[i+3], out[i+4], out[i+5], out[i+6], out[i+7]);
-        
+         
         }
 
         uint64_t base = count - count%8;
         for (uint64_t i = 0; i < count%8; i++) {
-            CCB_INFO("Processing remaining element %llu", base+i);
             out[base+i] = func(to_sc_value(a[base+i], sc_float32), to_sc_value(b[base+i], sc_float32)).value.f32;
         }
 
         return 0;
-    }
+    
+    } else if (func == sc_scalar_sub) {
+    
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_loadu_ps(&b[i]);
+            _out = _mm256_sub_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), to_sc_value(b[base+i], sc_float32)).value.f32;
+        }
+
+        return 0;
+
+    } else if (func == sc_scalar_mul) {
+    
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_loadu_ps(&b[i]);
+            _out = _mm256_mul_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), to_sc_value(b[base+i], sc_float32)).value.f32;
+        }
+
+        return 0;
+    
+    } else if (func == sc_scalar_div) {
+    
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_loadu_ps(&b[i]);
+            _out = _mm256_div_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), to_sc_value(b[base+i], sc_float32)).value.f32;
+        }
+
+        return 0;
+
+    } 
+
+
+    return -1;
+}
+
+
+int map_avx_f32(float* a, float* out, sc_value_t (*func)(sc_value_t), uint64_t count) {
+
+    if (func == sc_scalar_abs) {
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, _out;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            _out = _mm256_andnot_ps(_mm256_set1_ps(-0.0f), x); // Clear sign bit
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32)).value.f32;
+        }
+
+        return 0;
+    
+    } 
+    return -1;
+}
+
+int map_args_avx_f32(float* a, float* out, sc_value_t (*func)(sc_value_t, void*), void* args, uint64_t count) {
+
+    if (func == sc_scalar_add_args) {
+        sc_value_t b = *(sc_value_t *)args;
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+            float b_f = b.value.f32;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_set1_ps(b_f);
+            _out = _mm256_add_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), args).value.f32;
+        }
+
+        return 0;
+    
+    } else if (func == sc_scalar_sub_args) {
+        sc_value_t b = *(sc_value_t *)args;
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+            float b_f = b.value.f32;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_set1_ps(b_f);
+            _out = _mm256_sub_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), args).value.f32;
+        }
+
+        return 0;
+
+    } else if (func == sc_scalar_mul_args) {
+        sc_value_t b = *(sc_value_t *)args;
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+            float b_f = b.value.f32;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_set1_ps(b_f);
+            _out = _mm256_mul_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), args).value.f32;
+        }
+
+        return 0;
+    
+    } else if (func == sc_scalar_div_args) {
+
+        sc_value_t b = *(sc_value_t *)args;
+        for (uint64_t i = 0; i < count; i+=8){
+            __m256 x, y, _out;
+            float b_f = b.value.f32;
+
+            if (i + 8 > count) break;
+
+            x = _mm256_loadu_ps(&a[i]);
+            y = _mm256_set1_ps(b_f);
+            _out = _mm256_div_ps(x, y);
+            _mm256_storeu_ps(&out[i], _out);
+         
+        }
+
+        uint64_t base = count - count%8;
+        for (uint64_t i = 0; i < count%8; i++) {
+            out[base+i] = func(to_sc_value(a[base+i], sc_float32), args).value.f32;
+        }
+
+        return 0;
+
+    } 
 
     return -1;
 }
@@ -209,6 +392,12 @@ int execute_map_op(void* a, void* out, sc_value_t (*func)(sc_value_t), sc_TYPES 
             float* a_data = (float*)a;
             float* out_data = (float*)out;
 
+            if (__builtin_cpu_supports("avx") >= 256) {
+                if (map_avx_f32(a_data, out_data, func, count) == 0) {
+                    return 0;
+                }
+            }
+
             for (uint64_t i = 0; i < count; i++) {
                 out_data[i] = func(to_sc_value(a_data[i], sc_float32)).value.f32;
             }
@@ -248,6 +437,12 @@ int execute_map_args_op(void* a, void* out, sc_value_t (*func)(sc_value_t, void*
         case sc_float32: {
             float* a_data = (float*)a;
             float* out_data = (float*)out;
+
+            if (__builtin_cpu_supports("avx") >= 256) {
+                if (map_args_avx_f32(a_data, out_data, func, args, count) == 0) {
+                    return 0;
+                }
+            }
 
             for (uint64_t i = 0; i < count; i++) {
                 out_data[i] = func(to_sc_value(a_data[i], sc_float32), args).value.f32;

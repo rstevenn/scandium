@@ -16,3 +16,9 @@ Engine speed: 133.00 Mop/s
 Stress test took 0.332030 seconds per iteration.
 Engine speed: 572.24 Mop/s
 ```
+
+### Multi thread for [ element_wise_op, scalar_op, reduce, map, map_args, dot ] SIMD, no thread pool
+```
+Stress test took 0.156610 seconds per iteration.
+Engine speed: 1.21 Gop/s
+```

@@ -320,7 +320,6 @@ void gen_test_vector_add(FILE* file, test_data test) {
     fprintf(file, "        sc_value_t val = sc_get_vector_element(result, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%s)(i + i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
     fprintf(file, "            CCB_WARNING(\"Vector addition mismatch at index %%u: expected %%f, got %%f\", i, (%s)(i + i * 2), val.value.%s);\n", test.data_type, test.union_type);
-    fprintf(file, "            sc_print_vector(result);\n");
     fprintf(file, "            return -1;\n");
     fprintf(file, "        }\n");
     fprintf(file, "    }\n\n");
@@ -346,23 +345,7 @@ void gen_test_vector_add_inplace(FILE* file, test_data test) {
     fprintf(file, "        sc_value_t val2 = to_sc_value((%s)(i * 2), %s);\n", test.data_type, test.sc_type);
     fprintf(file, "        sc_set_vector_element(vector2, i, val2);\n");
     fprintf(file, "    }\n\n");
-    fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
-    fprintf(file, "        sc_value_t val1 = sc_get_vector_element(vector1, i);\n");
-    fprintf(file, "        sc_value_t val2 = sc_get_vector_element(vector2, i);\n");
-    fprintf(file, "        sc_value_t sum;\n");
-    fprintf(file, "        sum.type = %s;\n", test.sc_type);
-    if (test.sc_val == sc_float16) {
-        fprintf(file, "        sum.value.f16 = (__bf16)((float)val1.value.f16 + (float)val2.value.f16);\n");
-    } else if (test.sc_val == sc_float32) {
-        fprintf(file, "        sum.value.f32 = val1.value.f32 + val2.value.f32;\n");
-    } else if (test.sc_val == sc_float64) {
-        fprintf(file, "        sum.value.f64 = val1.value.f64 + val2.value.f64;\n");
-    } else {
-        fprintf(file, "        // Unsupported type for addition\n");
-        fprintf(file, "        return -1;\n");
-    }
-    fprintf(file, "        sc_set_vector_element(vector1, i, sum);\n");
-    fprintf(file, "    }\n\n");
+    fprintf(file, "    sc_vector_add_inplace(vector1, vector2);\n\n");
     fprintf(file, "    for (uint64_t i = 0; i < 10; i++) {\n");
     fprintf(file, "        sc_value_t val = sc_get_vector_element(vector1, i);\n");
     fprintf(file, "        if (val.type != %s || val.value.%s != (%    s)(i + i * 2)) {\n", test.sc_type, test.union_type, test.data_type);
