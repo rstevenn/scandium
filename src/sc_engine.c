@@ -28,8 +28,8 @@ struct thread_control {
     mutex_t run_mutex;
     mutex_t wait_mutex;
     struct thread_data* task_data;
-    void* (*task_fn)(void*);
-    void* return_value;
+    int (*task_fn)(void*);
+    int return_value;
     ccb_arena* arena;
 };
 
@@ -558,7 +558,7 @@ int execute_map_args_op(void* a, void* out, sc_value_t (*func)(sc_value_t, void*
 
 // multi thread warpers
 
-void* multi_execute_element_wise_op(void* args) {
+int multi_execute_element_wise_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* b = data->b;
@@ -581,7 +581,7 @@ void* multi_execute_element_wise_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return (void*)-1;
+        return -1;
     }
 
     if (data->id != data->thread_count - 1) {
@@ -602,10 +602,10 @@ void* multi_execute_element_wise_op(void* args) {
         unlock_mutex(data->mutex);
     }
 
-    return (void*)_out;
+    return _out;
 }
 
-void* multi_execute_scalar_element_op(void* args) {
+int multi_execute_scalar_element_op(void* args) {
 
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
@@ -627,7 +627,7 @@ void* multi_execute_scalar_element_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return (void*)-1;
+        return -1;
     }
     
     void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -645,11 +645,11 @@ void* multi_execute_scalar_element_op(void* args) {
         unlock_mutex(data->mutex);
     }
 
-    return (void*)return_code;
+    return return_code;
 }
 
 
-void* multi_execute_reduce_op(void* args) {
+int multi_execute_reduce_op(void* args) {
     
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
@@ -670,7 +670,7 @@ void* multi_execute_reduce_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return (void*)-1;
+        return -1;
     }
 
     void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -687,12 +687,12 @@ void* multi_execute_reduce_op(void* args) {
         unlock_mutex(data->mutex);
     }
 
-    return (void*)return_code;
+    return return_code;
 }
 
 
 
-void* multi_execute_map_op(void* args) {
+int multi_execute_map_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* out = data->out;
@@ -713,7 +713,7 @@ void* multi_execute_map_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return (void*)-1;
+        return -1;
     }
 
     void* a_start = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -731,11 +731,11 @@ void* multi_execute_map_op(void* args) {
         unlock_mutex(data->mutex);
     }
 
-    return (void*)return_code;
+    return return_code;
 }
 
 
-void* multi_execute_map_args_op(void* args) {
+int multi_execute_map_args_op(void* args) {
     struct thread_data* data = (struct thread_data*)args;
     void* a = data->a;
     void* out = data->out;
@@ -758,7 +758,7 @@ void* multi_execute_map_args_op(void* args) {
         data_size = sizeof(double);
     } else {
         CCB_ERROR("Unsupported sc_TYPES value %d", data->type);
-        return (void*)-1;
+        return -1;
     }
 
     void* start_a = (void*)((uintptr_t)a + data->id * start_delta * data_size);
@@ -776,7 +776,7 @@ void* multi_execute_map_args_op(void* args) {
         unlock_mutex(data->mutex);
     }
 
-    return (void*)return_code;
+    return return_code;
 }
 
 
