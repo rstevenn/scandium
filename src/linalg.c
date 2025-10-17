@@ -9,7 +9,7 @@
 #include <math.h>
 
 
-#define EXEC_MOD sc_auto
+#define EXEC_MOD sc_multi_thread
 
 
 // #########################

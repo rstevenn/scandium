@@ -24,6 +24,93 @@ struct thread_data {
     mutex_t mutex;
 };
 
+struct thread_control {
+    mutex_t run_mutex;
+    mutex_t wait_mutex;
+    struct thread_data* task_data;
+    void* (*task_fn)(void*);
+    void* return_value;
+    ccb_arena* arena;
+};
+
+
+// thread pool
+thread_t* threads = NULL;
+struct thread_control* thread_controls = NULL;
+uint64_t thread_count = 0;
+
+
+void* sc_worker(void* arg);
+void sc_init_thread_pool(uint64_t num_threads) {
+    
+    if (threads != NULL) {
+        return;
+    }
+    
+    if (num_threads == 0) {
+        num_threads = get_cpu_count();
+    }
+
+    threads = malloc(num_threads*sizeof(thread_t));
+    if (threads == NULL) {
+        CCB_ERROR("Failed to allocate memory for thread pool");
+        return;
+    }
+    
+    thread_controls = malloc(num_threads*sizeof(struct thread_control));
+    if (thread_controls == NULL) {
+        CCB_ERROR("Failed to allocate memory for thread control");
+        free(threads);
+        threads = NULL;
+        return;
+    }
+
+    for (uint64_t i = 0; i < num_threads; i++) {
+        create_mutex(&thread_controls[i].run_mutex);
+        create_mutex(&thread_controls[i].wait_mutex);
+        lock_mutex(thread_controls[i].wait_mutex);
+        thread_controls[i].task_data = NULL;
+    
+        create_thread(&threads[i], sc_worker, &thread_controls[i]);
+        if (threads[i] == 0) {
+            CCB_ERROR("Failed to create thread %d", i);
+            exit(1);
+        }
+        unlock_mutex(thread_controls[i].run_mutex);   
+    }
+
+
+    thread_count = num_threads;
+}
+
+void sc_destroy_thread_pool() {
+    if (threads != NULL) {
+        free(threads);
+        threads = NULL;
+        thread_count = 0;
+    }
+}
+
+void* sc_worker(void* arg) {
+    struct thread_control* data = (struct thread_control*)arg;
+
+    while(1) {
+        lock_mutex(data->wait_mutex);
+        lock_mutex(data->run_mutex);
+        unlock_mutex(data->wait_mutex);
+
+        if (data->task_data == NULL) {
+            unlock_mutex(data->run_mutex);
+            break;
+        }
+        data->return_value = data->task_fn(data->task_data);
+        data->task_data = NULL;
+        unlock_mutex(data->run_mutex);
+                
+    }
+}
+
+
 // AVX optimized functions
 int element_wise_avx_f32(float* a, float* b, float* out, sc_value_t (*func)(sc_value_t, sc_value_t), uint64_t count) {
 
@@ -796,6 +883,9 @@ sc_task_result* execute_single_thread(sc_task* task, sc_task_result* out) {
 
 
 sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
+    sc_init_thread_pool(0);
+
+
     int thread_count = get_cpu_count();
     thread_count = min(thread_count, task->opration_count);
     
@@ -848,9 +938,6 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
 
 
     // lanch threads
-    thread_t* threads = (thread_t*)malloc(thread_count * sizeof(thread_t));
-    CCB_NOTNULL(threads, "Failed to allocate threads");
- 
     for (uint64_t i = 0; i < thread_count; i++) {
         data[i].a = a;
         data[i].b = b;
@@ -868,34 +955,51 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
         
         switch (task->op_type) {
             case sc_element_wise_op:
-                create_thread(&threads[i], multi_execute_element_wise_op, &data[i]);
+                thread_controls[i].task_data = &data[i];
+                thread_controls[i].task_fn = multi_execute_element_wise_op;
+                unlock_mutex(thread_controls[i].wait_mutex);
                 break;
 
             case sc_element_scalar_op:
-                create_thread(&threads[i], multi_execute_scalar_element_op, &data[i]);
+                thread_controls[i].task_data = &data[i];
+                thread_controls[i].task_fn = multi_execute_scalar_element_op;
+                unlock_mutex(thread_controls[i].wait_mutex);
                 break;
 
             case sc_reduce_op:
-                create_thread(&threads[i], multi_execute_reduce_op, &data[i]);
+                thread_controls[i].task_data = &data[i];
+                thread_controls[i].task_fn = multi_execute_reduce_op;
+                unlock_mutex(thread_controls[i].wait_mutex);
                 break;
 
             case sc_map_op:
-                create_thread(&threads[i], multi_execute_map_op, &data[i]);
+                thread_controls[i].task_data = &data[i];
+                thread_controls[i].task_fn = multi_execute_map_op;
+                unlock_mutex(thread_controls[i].wait_mutex);
                 break;
 
             case sc_map_args_op:
-                create_thread(&threads[i], multi_execute_map_args_op, &data[i]);
+                thread_controls[i].task_data = &data[i];
+                thread_controls[i].task_fn = multi_execute_map_args_op;
+                unlock_mutex(thread_controls[i].wait_mutex);
                 break;
 
             default:
-                CCB_ERROR("Unsupported operation type %d", task->op_type);
-                return out;
+                CCB_ERROR("Unsupported sc_TYPES value %d", task->op_type);
+                break;
         }
+    }
+
+    for (uint64_t i = 0; i < thread_count; i++) {
+        lock_mutex(thread_controls[i].wait_mutex);
     }
 
     int rate = 0;
     for (uint64_t i = 0; i < thread_count; i++) {
-        if (join_thread(threads[i]) == -1) {
+        lock_mutex(thread_controls[i].run_mutex);
+        unlock_mutex(thread_controls[i].run_mutex);
+
+        if (thread_controls[i].return_value != 0) {
             CCB_ERROR("Failed to join thread %d", i);
             out->succes = 0;
             return out;
@@ -935,7 +1039,6 @@ sc_task_result* execute_multi_thread(sc_task* task, sc_task_result* out) {
     }
 
     destroy_mutex(mutex);
-    free(threads);
     free(data);
     
     return out;
